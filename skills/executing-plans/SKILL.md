@@ -18,16 +18,18 @@ Load plan, review critically, execute all tasks, report when complete.
 ### Step 1: Load and Review Plan
 1. Read plan file
 2. Review critically - identify any questions or concerns about the plan
-3. If concerns: Raise them with your human partner before starting
-4. If no concerns: Create TodoWrite and proceed
+3. Check slice shape: foundation vs behavior changes, dependency chain risk, verification scope
+4. If concerns: Raise them with your human partner before starting
+5. If no concerns: Create TodoWrite and proceed
 
 ### Step 2: Execute Tasks
 
 For each task:
 1. Mark as in_progress
 2. Follow each step exactly (plan has bite-sized steps)
-3. Run verifications as specified
-4. Mark as completed
+3. Keep branch/worktree independent from unmerged behavior branches
+4. Run verifications as specified
+5. Mark as completed
 
 ### Step 3: Complete Development
 
@@ -43,6 +45,9 @@ After all tasks complete and verified:
 - Plan has critical gaps preventing starting
 - You don't understand an instruction
 - Verification fails repeatedly
+- Task starts depending on another unmerged behavior branch
+- Secret appears in diff, logs, fixtures, docs, HTTP/client files
+- Feature flag/config gate needed but not approved by user
 
 **Ask for clarification rather than guessing.**
 
@@ -61,6 +66,9 @@ After all tasks complete and verified:
 - Reference skills when plan says to
 - Stop when blocked, don't guess
 - Never start implementation on main/master branch without explicit user consent
+- Do not publish remote stacked PR/MR chain unless user approved
+- Run local gates before using CI as feedback loop
+- Inspect diffs and secrets before push
 
 ## Integration
 
@@ -68,3 +76,7 @@ After all tasks complete and verified:
 - **superpowers:using-git-worktrees** - Ensures isolated workspace (creates one or verifies existing)
 - **superpowers:writing-plans** - Creates the plan this skill executes
 - **superpowers:finishing-a-development-branch** - Complete development after all tasks
+- **slicing** - Use when plan has multiple feature increments or dependency risk
+- **worktree-flow** - Use when creating isolated branch/worktree
+- **commit-flow** - Use before commit/push/PR/MR
+- **verification-before-completion** - Use before completion claims

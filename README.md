@@ -35,7 +35,11 @@ bin/cli.js     # npx installer
 |---|---|
 | `graphify` | Map unfamiliar code into a Mermaid diagram + narrative before editing |
 | `spec-kit` | Spec-driven development loop (constitution → spec → plan → tasks → implement → PR) with approval gates |
+| `slicing` | Split work into foundation + independently reviewable behavior changes |
 | `testing` | Test-writing discipline: no test-only prod code, mock boundaries |
+| `worktree-flow` | Isolated branch/worktree setup and anti-stacked-PR workflow |
+| `commit-flow` | Explicit staging, local gates, secret hygiene, commit/PR discipline |
+| `human-in-the-loop` | Stop/log decision rules for scope, destructive, security, feature-flag, and architecture gates |
 | `dispatching-parallel-agents` | When/how to fan out independent subagent tasks |
 | `executing-plans` | Execute written implementation plans with review checkpoints |
 | `requesting-code-review` / `receiving-code-review` | Both sides of review discipline |

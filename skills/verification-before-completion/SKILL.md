@@ -1,71 +1,41 @@
 ---
 name: verification-before-completion
-description: Use when about to claim work is complete, fixed, or passing, before committing or creating PRs - requires running verification commands and confirming output before making any success claims; evidence before assertions always
+description: Use when about to claim work is complete, fixed, passing, ready to commit, ready to push, or ready for PR/MR.
 ---
 
 # Verification Before Completion
 
-## Overview
+Core: evidence before claims. No fresh evidence = no success claim.
 
-Claiming work is complete without verification is dishonesty, not efficiency.
+## Gate
 
-**Core principle:** Evidence before claims, always.
+Before saying done/passing/fixed/ready:
+1. Identify command/check proving claim.
+2. Run fresh command/check.
+3. Read full output + exit code.
+4. State result with evidence.
 
-**Violating the letter of this rule is violating the spirit of this rule.**
+## Local Push/PR Gate
 
-## The Iron Law
+| Change | Minimum evidence |
+|--------|------------------|
+| Any push/PR/MR | Secret scan, diff inspect, lint/type/format checks relevant to project |
+| Tiny non-risky after same-branch green CI | Secret scan + diff + quick checks; explain skipped tests |
+| Behavior | Targeted tests |
+| Large branch | Full tests or local CI-equivalent |
+| DB model/migration/seed | Migration consistency check, migrate up/down where supported, relevant DB tests |
+| Auth/security/PII | Targeted + broader auth/security tests |
+| Background/provider/IO | Fake-provider unit tests + smoke/integration if available |
+| HTTP/client files | Placeholder-only inspect; smoke only with safe local env |
 
-```
-NO COMPLETION CLAIMS WITHOUT FRESH VERIFICATION EVIDENCE
-```
+CI confirms; local loop finds failures.
 
-If you haven't run the verification command in this message, you cannot claim it passes.
+## Red Flags
 
-## The Gate Function
-
-```
-BEFORE claiming any status or expressing satisfaction:
-
-1. IDENTIFY: What command proves this claim?
-2. RUN: Execute the FULL command (fresh, complete)
-3. READ: Full output, check exit code, count failures
-4. VERIFY: Does output confirm the claim?
-   - If NO: State actual status with evidence
-   - If YES: State claim WITH evidence
-5. ONLY THEN: Make the claim
-
-Skip any step = lying, not verifying
-```
-
-## Common Failures
-
-| Claim | Requires | Not Sufficient |
-|-------|----------|----------------|
-| Tests pass | Test command output: 0 failures | Previous run, "should pass" |
-| Linter clean | Linter output: 0 errors | Partial check, extrapolation |
-| Build succeeds | Build command: exit 0 | Linter passing, logs look good |
-| Bug fixed | Test original symptom: passes | Code changed, assumed fixed |
-| Regression test works | Red-green cycle verified | Test passes once |
-| Agent completed | VCS diff shows changes | Agent reports "success" |
-| Requirements met | Line-by-line checklist | Tests passing |
-
-## Red Flags - STOP
-
-- Using "should", "probably", "seems to"
-- Expressing satisfaction before verification ("Great!", "Perfect!", "Done!", etc.)
-- About to commit/push/PR without verification
-- Trusting agent success reports
-- Relying on partial verification
-- Thinking "just this once"
-- Tired and wanting work over
-- **ANY wording implying success without having run verification**
-
-## When To Apply
-
-**ALWAYS before:**
-- ANY variation of success/completion claims
-- ANY expression of satisfaction
-- ANY positive statement about work state
-- Committing, PR creation, task completion
-- Moving to next task
-- Delegating to agents
+- "should", "probably", "seems".
+- Satisfaction before evidence.
+- Commit/push/PR/MR without verification.
+- Push without secret scan + diff inspect.
+- Post-push security audit treated as enough.
+- Trusting agent success report without checking diff/output.
+- Partial check used for broad claim.

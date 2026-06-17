@@ -19,11 +19,14 @@ When you have multiple unrelated failures (different test files, different subsy
 - Multiple subsystems broken independently
 - Each problem can be understood without context from others
 - No shared state between investigations
+- Agents can edit different files or clearly isolated domains
 
 **Don't use when:**
 - Failures are related (fix one might fix others)
 - Need to understand full system state
 - Agents would interfere with each other
+- Tasks touch same volatile core files or unmerged branch stack
+- Security/secret incident needs single controlled owner
 
 ## The Pattern
 
@@ -43,6 +46,7 @@ Each agent gets:
 - **Clear goal:** Make these tests pass
 - **Constraints:** Don't change other code
 - **Expected output:** Summary of what you found and fixed
+- **Safety:** No secrets in outputs, fixtures, docs, HTTP/client files; inspect diff before return
 
 ### 3. Dispatch in Parallel
 
@@ -51,7 +55,8 @@ Each agent gets:
 When agents return:
 - Read each summary
 - Verify fixes don't conflict
-- Run full test suite
+- Inspect diffs and secret risk
+- Run appropriate local gate: targeted tests for each domain, full/local CI-equivalent when combined risk is high
 - Integrate all changes
 
 ## Agent Prompt Structure
@@ -72,6 +77,12 @@ Good agent prompts are:
 **❌ No constraints:** Agent might refactor everything
 **✅ Constraints:** "Do NOT change production code" or "Fix tests only"
 
+**❌ Shared volatile files:** Agents edit same core type/migration/config independently
+**✅ Foundation first:** One owner handles shared core; fan out after merge/rebase
+
+**❌ Secret handoff:** Agent copies real token into test HTTP file
+**✅ Placeholder-only:** Agent uses placeholders and reports any secret risk
+
 **❌ Vague output:** "Fix it" - you don't know what changed
 **✅ Specific:** "Return summary of root cause and changes"
 
@@ -81,6 +92,8 @@ Good agent prompts are:
 **Need full context:** Understanding requires seeing entire system
 **Exploratory debugging:** You don't know what's broken yet
 **Shared state:** Agents would interfere (editing same files, using same resources)
+**Branch dependencies:** Agents would create remote stacked PR/MR chain by accident
+**Secrets/security:** Work requires tight custody or incident response
 
 ## Key Benefits
 
@@ -94,5 +107,6 @@ Good agent prompts are:
 After agents return:
 1. **Review each summary** - Understand what changed
 2. **Check for conflicts** - Did agents edit same code?
-3. **Run full suite** - Verify all fixes work together
-4. **Spot check** - Agents can make systematic errors
+3. **Inspect diff/secrets** - No real secrets, no accidental broad changes
+4. **Run local gate** - Targeted/full based on risk
+5. **Spot check** - Agents can make systematic errors

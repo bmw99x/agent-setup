@@ -136,6 +136,7 @@ const mockResponse = {
 - Test fails when you remove mock
 - Can't explain why mock is needed
 - Mocking "just to be safe"
+- `import` statement inside a test function or fixture (all imports at top of file)
 
 ---
 
@@ -143,7 +144,7 @@ const mockResponse = {
 
 ### No separator comments
 
-Never use `# ---` or `# ===` banner separators to divide test sections. They add visual noise without semantic value. If a test file needs structure, use module-level docstrings or rely on the GIVEN/WHEN/THEN pattern to communicate intent.
+Avoid `# ---` or `# ===` banner separators to divide test sections. They add visual noise without semantic value. If a test file needs structure, use module-level docstrings, class grouping, or GIVEN/WHEN/THEN docstrings to communicate intent.
 
 ```python
 # ❌ WRONG — never do this
@@ -151,19 +152,17 @@ Never use `# ---` or `# ===` banner separators to divide test sections. They add
 # Helpers
 # ---------------------------------------------------------------------------
 
-def _job() -> EmailJob: ...
+def _resource() -> Resource: ...
 
 # ---------------------------------------------------------------------------
 # Unit tests
 # ---------------------------------------------------------------------------
 
-@pytest.mark.unit
 def test_foo() -> None: ...
 
 # ✅ CORRECT — no separators, structure comes from markers and docstrings
-def _job() -> EmailJob: ...
+def _resource() -> Resource: ...
 
-@pytest.mark.unit
 def test_foo() -> None:
     """
     GIVEN ...
@@ -172,11 +171,11 @@ def test_foo() -> None:
     """
 ```
 
-Same rule applies to production files: no `# ---` banner separators anywhere.
+Same rule applies to production files unless project convention explicitly uses section banners.
 
 ### Test docstring format
 
-Every test must have a GIVEN/WHEN/THEN docstring. Format:
+Prefer GIVEN/WHEN/THEN docstrings for behavior-heavy tests. If a project requires test docstrings, use this format:
 
 ```python
 # ✅ CORRECT
@@ -201,35 +200,35 @@ Opening `"""` is alone on its line. No blank lines between GIVEN/WHEN/THEN. Clos
 ### Test markers
 
 ```python
-@pytest.mark.unit         # no DB, no network, no fixtures — AsyncMock/MagicMock only
-@pytest.mark.integration  # requires live DB session fixture
+@pytest.mark.unit         # isolated: no DB/network/external services
+@pytest.mark.integration  # live integration: DB/network/service fixture
 ```
 
-Route tests and any test with a `session: AsyncSession` fixture → `@pytest.mark.integration`.
-Pure logic tests with injected fakes/mocks → `@pytest.mark.unit`.
+Endpoint/route tests and tests using live DB/session/network fixtures → integration.
+Pure logic tests with injected fakes/mocks → unit.
 
 ### Unit test pattern for injectable functions
 
-When production code uses dependency injection (callable args for DB access), unit tests inject fakes directly — no mocking of session managers:
+When production code uses dependency injection (callable args for data access, providers, clocks, or queues), unit tests inject fakes directly — avoid mocking global/session managers:
 
 ```python
 @pytest.mark.unit
-async def test_on_success_called() -> None:
+async def test_handler_called() -> None:
     """
-    GIVEN a valid job and provider that succeeds.
-    WHEN _send_email_job is called
+    GIVEN a valid resource and provider that succeeds.
+    WHEN process_resource is called
     THEN handler.on_success is called once
     """
-    job = _make_email_job()
-    handler = MockJobHandler()
+    resource = _make_resource()
+    handler = RecordingHandler()
 
-    await _send_email_job(
-        job.id,
-        job_fetcher=AsyncMock(return_value=job),
+    await process_resource(
+        resource.id,
+        resource_fetcher=AsyncMock(return_value=resource),
         handler=handler,
     )
 
     assert len(handler.success_calls) == 1
 ```
 
-`MockJobHandler` (or similar) implements the Protocol and records calls. Use `AsyncMock(return_value=...)` for async callables. Patch `get_provider` to simulate failures.
+`RecordingHandler` (or similar) implements the Protocol and records calls. Use `AsyncMock(return_value=...)` for async callables. Inject fake providers to simulate failures.

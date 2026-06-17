@@ -1,17 +1,17 @@
 ---
 name: "spec-kit"
-description: "Spec-Driven Development — Full Loop. Orchestrates GitHub spec-kit phases sequentially (Constitution → Specify → Clarify → Plan → Tasks → Analyze → Implement → Verify → Review → Commit+PR). Gates on user approval between phases."
+description: "Use when running Spec-Driven Development with spec-kit: specify, clarify, plan, slice, implement, verify, review, commit, and PR/MR flow with approval gates."
 argument-hint: "Feature description to spec out"
 compatibility: "Requires spec-kit project structure with .specify/ directory"
 user-invocable: true
 disable-model-invocation: false
 ---
 
-# Spec-Driven Development — Full Loop
+# Spec-Driven Development
 
 Feature: `$ARGUMENTS`
 
-Run the phases below **sequentially**. After each phase, STOP and show the user the artifact produced. Do NOT advance until the user types `continue` (or equivalent approval). If the user types `skip`, skip that phase. If the user types `stop`, abort.
+Run phases sequentially. After each phase: show artifact, stop, wait for `continue` / `skip` / `stop`.
 
 ## Phase 0 — Constitution (skip if `.specify/memory/constitution.md` already populated)
 
@@ -29,7 +29,7 @@ Invoke the `speckit-clarify` skill. Ask up to 5 targeted questions, encode answe
 
 Invoke the `speckit-plan` skill. Constrain the plan to the project's established tech stack and conventions (per the project's CLAUDE.md / AGENTS.md if present). Show `plan.md`. Wait for approval.
 
-Optionally, decompose the plan into thin vertical slices — small end-to-end cuts that each deliver working, testable behavior (e.g., route + logic + persistence + test) — rather than horizontal layers. If the team uses an issue tracker, map each slice to a ticket. Show the slice list and wait for approval.
+Invoke `slicing` if available. Decompose into foundation + independent behavior changes. If 2+ slices touch volatile core, foundation first, merge before fan-out. Show target base, dependencies, local verification scope. Wait for approval.
 
 ## Phase 4 — Tasks
 
@@ -39,36 +39,45 @@ Invoke the `speckit-tasks` skill. Generate dependency-ordered `tasks.md`. Show. 
 
 Invoke the `speckit-analyze` skill. Cross-artifact consistency check (spec ↔ plan ↔ tasks). Report drift. Wait for approval (or loop back to fix).
 
-## Phase 6 — Implement
+## Phase 6 — Worktree / Branch
 
-Before implementing, set up an isolated workspace: create a feature branch from the default branch (a git worktree if working in parallel), install dependencies, copy local env config, and run any pending migrations.
+Invoke `worktree-flow` if available. Set up isolated workspace from default branch or approved foundation. Install deps, copy local env config, run pending migrations if relevant. Avoid remote stacked PR/MR chains by default.
 
-Invoke the `speckit-implement` skill. Execute tasks in dependency order; use parallel subagents for independent tasks where available. Apply any relevant domain-specific skills (testing, schema/DTO, ORM, migrations) per task. Show progress per task. Wait for approval at each checkpoint.
+## Phase 7 — Implement
 
-## Phase 7 — Verify
+Invoke the `speckit-implement` skill. Execute tasks in dependency order; use parallel subagents for independent tasks where available. Local stack OK; pushed changes must rebase onto default/foundation. Before feature flag/config gate: ask user; persisted default OFF unless approved otherwise. HTTP/client files use placeholders only.
 
-Run the project's verification gates and show real output before claiming done:
-- Linter / formatter check
-- Type checker
-- Full test suite
-- Targeted smoke tests for new endpoints or entry points
+## Phase 8 — Verify
+
+Invoke `verification-before-completion` if available. Use intelligent local gate before push/PR/MR:
+- Always: secret scan + diff inspect vs target base + quick project checks.
+- Behavior: targeted tests.
+- Large branch: full tests or local CI-equivalent.
+- DB/migration/seed: migration consistency + DB tests.
+- Auth/security/PII: broader security/auth tests.
+- Background/provider/IO: fake-provider unit tests + available smoke/integration.
+- HTTP/client files: placeholders only; smoke only with safe local env.
+
+Tiny non-risky change after same-branch green CI may use quick checks only. State why.
 
 Show output. Wait for approval.
 
-## Phase 8 — Review
+## Phase 9 — Review
 
 Run a code review on the full diff (use the project's review skill or checklist if one exists): correctness, type safety, layering, security, test coverage, migration safety. Address findings. Wait for approval.
 
-## Phase 9 — Commit + PR
+## Phase 10 — Commit + PR/MR
 
-Stage changes explicitly and commit using Conventional Commits format. Never bypass pre-commit hooks. Open a PR/MR against the default branch with a clear description: summary, changes, test evidence, and any open questions. Show the PR/MR URL.
+Invoke `commit-flow` if available. Stage explicitly. Never bypass hooks. Open PR/MR against default branch unless user approved stack/integration branch. Include summary, changes, test evidence, risks, open questions. Show URL.
 
 If the team uses an issue tracker, update the linked ticket: move it to review status, link the PR/MR, and post a summary comment.
 
 ---
 
 **Rules:**
-- Never skip Phase 7 (verify) — evidence before "done"
+- Never skip verify — evidence before "done"
 - Never bypass commit hooks (no `--no-verify`)
 - Stop and ask the user at any uncertainty gate: scope changes, destructive operations, architectural decisions
-- Commit messages use Conventional Commits format
+- No remote stacked PR/MR chains by default
+- Secret check before push; post-push audit is not enough
+- Commit messages use project convention; prefer Conventional Commits if none exists
