@@ -41,3 +41,7 @@ Map first, edit second. For any unfamiliar module, cross-file flow, or "how does
 ## Subagent routing
 
 Research/multi-step search → general-purpose agent. Targeted code lookup → read-only explore agent. Implementation strategy → planning agent.
+
+## Agent registry
+
+Full list of named agents with triggers, skills, and tool permissions lives in `agent-registry.md` (same directory as this file, or at `~/.claude/agent-registry.md` for Claude Code). Consult before dispatching a subagent to pick the right type and load the right context.
