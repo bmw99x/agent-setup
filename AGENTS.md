@@ -14,19 +14,16 @@ Map first, edit second. For any unfamiliar module, cross-file flow, or "how does
 
 ## Skill routing
 
+General workflow skills (brainstorming, TDD, planning, debugging, subagent-driven development, code review, etc.) are provided by the [Superpowers v6+](https://github.com/obra/Superpowers) plugin — install per-provider.
+
 | Task signal | Skill |
 |---|---|
 | write/add/review tests, fixtures, mocks | `testing` |
 | explore/map unfamiliar code | `graphify` |
 | plan feature slices / vertical vs horizontal split | `slicing` |
 | create isolated branch/worktree | `worktree-flow` |
-| 2+ independent tasks, no shared state | `dispatching-parallel-agents` |
-| executing a written implementation plan | `executing-plans` |
 | commit, push, PR/MR | `commit-flow` |
 | uncertainty / approval gate | `human-in-the-loop` |
-| finished a feature / pre-merge | `requesting-code-review` |
-| acting on review feedback | `receiving-code-review` |
-| about to claim "done" / "fixed" / "passing" | `verification-before-completion` |
 | Sentry CLI queries | `sentry-cli` |
 | SQLAlchemy/advanced-alchemy models, repos, services | `advanced-alchemy` |
 | Alembic revision, schema migrate | `alembic` |

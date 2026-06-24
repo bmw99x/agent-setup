@@ -40,11 +40,9 @@ bin/cli.js     # npx installer
 | `worktree-flow` | Isolated branch/worktree setup and anti-stacked-PR workflow |
 | `commit-flow` | Explicit staging, local gates, secret hygiene, commit/PR discipline |
 | `human-in-the-loop` | Stop/log decision rules for scope, destructive, security, feature-flag, and architecture gates |
-| `dispatching-parallel-agents` | When/how to fan out independent subagent tasks |
-| `executing-plans` | Execute written implementation plans with review checkpoints |
-| `requesting-code-review` / `receiving-code-review` | Both sides of review discipline |
-| `verification-before-completion` | Evidence before "done" claims |
-| `using-superpowers` | Skill discovery/invocation discipline across providers |
+| `claude-mem` | Persistent cross-session memory usage (claude-mem plugin) |
+
+> Engineering discipline skills (brainstorming, TDD, debugging, planning, subagent-driven development, code review, etc.) are now provided by the [Superpowers v6+](https://github.com/obra/Superpowers) plugin. Install per-provider via their plugin marketplace.
 | `claude-mem` | Persistent cross-session memory usage (claude-mem plugin) |
 
 ### Python backend
