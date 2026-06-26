@@ -1,3 +1,8 @@
+---
+name: python-testing
+description: Load when writing or changing Python/pytest tests — covers docstring format, markers, separator conventions, and injectable unit test patterns
+---
+
 # Python/pytest Conventions
 
 ## No separator comments
