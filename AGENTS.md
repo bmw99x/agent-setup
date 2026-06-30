@@ -2,11 +2,11 @@
 
 > Provider-agnostic global instructions for coding agents (Claude Code, OpenCode, Codex, Copilot CLI, Gemini CLI). Project-specific facts live in each project's own AGENTS.md/CLAUDE.md — never here.
 
-## Tool priority: rtk > serena MCP > raw bash
+## Tool priority: rtk OR serena MCP > raw bash
 
 **THIS IS MANDATORY. NEVER SKIP THIS. NO EXCEPTIONS.**
 
-When you need to explore, search, read, diff, or run dev tools, you **MUST** prefer these in order:
+When you need to explore, search, read, diff, or run dev tools, you **MUST** prefer rtk or serena MCP over raw bash. rtk and serena serve different domains (CLI output filtering vs. code structure operations) — they are NOT ranked against each other:
 
 ### 1. rtk — available CLI proxy (token-optimized output)
 
@@ -38,7 +38,7 @@ serena understands code structure (symbol trees, references, types). Prefer sere
 | "Where is X defined"            | `serena_find_declaration`         | Jump-to-definition                |
 | New project setup               | `serena_initial_instructions`     | Read the manual                   |
 
-### 3. raw bash — last resort
+### 3. raw bash — last resort (use only when no rtk or serena equivalent exists)
 
 Only use raw bash (`ls`, `cat`, `grep`, `rg`, `find`, `sed`, `git diff`, `npm test`, etc.) when no `rtk` or serena equivalent exists. **When an `rtk` or serena tool CAN do the job, you MUST use it. Do not rationalize skipping this.**
 
