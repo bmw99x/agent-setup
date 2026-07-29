@@ -1,132 +1,67 @@
 ---
 name: mantine
-description: Use when building UI with Mantine v8. Covers component usage, theming, form handling, and hooks.
-version: 1.0.0
+description: Use when building or reviewing UI with Mantine v8 — styling, components, forms, hooks. Enforces the styling precedence law (props before classNames before CSS modules).
+version: 2.0.0
 author: Bog
 license: MIT
 metadata:
   hermes:
-    tags: [mantine, react, ui, components]
+    tags: [mantine, react, ui, components, styling]
     related_skills: [react, css, typescript]
 ---
 
 # Mantine v8 Skill
 
-## Package Structure
-- Use components from `@mantine/core`, `@mantine/hooks`, `@mantine/form`
-- Each package is tree-shakeable; import only what you need
+Source of truth for styling: https://mantine.dev/styles/style-props/
+
+## ⚠️ VERY IMPORTANT — Styling Precedence Law
+
+Before writing ANY CSS, walk this ladder top-down. Stop at the first rung that works.
+
+1. **Right component** — does Mantine already model this? A bordered, padded, rounded box IS `<Card>`/`<Paper>`. A vertical tab list IS `<Tabs orientation="vertical">`. A column of spaced children IS `<Stack>`; a row IS `<Group>`. Reach for the component before styling a `<Box>`/`<div>`.
+2. **Style props** — `w`, `h`, `mih`, `maw`, `bg`, `bdrs`, `m`/`mt`/`p`/`px`, `c`, `ta`, `pos`, … Map CSS to props via [style-props.md](style-props.md). This handles the vast majority of one-off layout/spacing.
+3. **`classNames` (Styles API)** — only when targeting a component's inner elements that props can't reach.
+4. **CSS module `className`** — last resort. Only for things props/Styles API genuinely cannot express (pseudo-selectors, keyframes, `overflow`, `white-space`, complex `:has()`, container queries).
+
+A CSS class that only sets things props can express (width, height, background, border-radius, margin, padding, flex-direction) is a defect. Delete it; use props.
+
+**`style={{ ... }}` is NOT on this ladder.** It is never the answer. Even when no Mantine prop exists for a CSS property (e.g. `overflow`, `white-space`), the correct fallback is a CSS module class — not an inline style object. Inline style bypasses the cascade, breaks dark-mode overrides, and is flagged in every review.
+
+### Hard rules (these are what reviewers flag)
+
+- **Never `style={{ ... }}`** — not even for "no prop exists". Use a CSS module class instead. `style={{ overflow: "hidden" }}` → `.wrap { overflow: hidden }` + `className={classes.wrap}`.
+- **No curly braces around string-literal props.** `w="100%"` not `w={"100%"}`. `h="100%"` not `h={"100%"}`.
+- **No `createStyles`.** It was removed in v8 — use props → `classNames` → CSS modules.
+- **Don't hand-roll layout** (`display:flex; flex-direction:column`) when `<Stack>`/`<Group>`/`orientation` props exist.
+- **`gap`/`spacing` use theme tokens** (`gap="xs"`), not raw rem, unless a specific value is required.
+
+When unsure which prop maps to a CSS property, consult [style-props.md](style-props.md) — do not guess or fall back to CSS.
 
 ## Theming
-- Use Mantine's theme object for colors, spacing, typography
-- Never hardcode values; use theme tokens
-  ```typescript
-  import { useMantineTheme } from '@mantine/core';
-  
+- Use theme tokens for color/spacing/typography — never hardcode.
+  ```tsx
   const theme = useMantineTheme();
-  const primaryColor = theme.colors.blue[5];
+  const primary = theme.colors.blue[5];
   ```
 
 ## Components
-- Prefer Mantine components over raw HTML elements
-- Use Mantine equivalents: `Button`, `TextInput`, `Select`, `Checkbox`, `Textarea`, `Modal`, etc.
-  ```typescript
-  import { Button, TextInput, Select } from '@mantine/core';
-  
-  <Button variant="filled" onClick={handleSubmit}>
-    Submit
-  </Button>
-  
-  <TextInput
-    label="Email"
-    placeholder="you@example.com"
-    error={errors.email}
-  />
-  ```
+- Prefer Mantine components over raw HTML: `Button`, `TextInput`, `Select`, `Checkbox`, `Textarea`, `Modal`, `Card`, `Paper`, `Stack`, `Group`, `Tabs`.
 
 ## Forms
-- Use `@mantine/form` with `useForm` hook, not controlled inputs directly
-  ```typescript
-  import { useForm } from '@mantine/form';
-  
-  const form = useForm({
-    initialValues: { email: '', name: '' },
-    validate: {
-      email: (value) => (/^\S+@\S+$/.test(value) ? null : 'Invalid email'),
-    },
-  });
-  
-  <TextInput {...form.getInputProps('email')} />
+- Use `@mantine/form`'s `useForm`, not raw controlled inputs.
+  ```tsx
+  const form = useForm({ initialValues: { email: "" }, validate: { email: (v) => (/^\S+@\S+$/.test(v) ? null : "Invalid") } });
+  <TextInput {...form.getInputProps("email")} />
   ```
 
 ## Notifications
-- Use the `notifications` hook for user feedback
-- Never use `alert()` for user-facing messages
-  ```typescript
-  import { notifications } from '@mantine/notifications';
-  
-  notifications.show({
-    title: 'Success',
-    message: 'Your changes have been saved',
-    color: 'green',
-  });
-  ```
+- `notifications.show({ title, message, color })` — never `alert()`.
 
 ## Modals
-- Use Mantine's `Modal` component
-- Should close on outside click and trap focus
-  ```typescript
-  import { Modal } from '@mantine/core';
-  
-  <Modal
-    opened={opened}
-    onClose={onClose}
-    title="Confirm Action"
-    centered
-  >
-    {/* modal content */}
-  </Modal>
-  ```
+- `<Modal opened onClose title centered>` — closes on outside click, traps focus.
 
-## Loading States
-- Use `Loader` component or loading overlays
-- Never show blank screens during async operations
-  ```typescript
-  import { LoadingOverlay, Loader } from '@mantine/core';
-  
-  <Box pos="relative">
-    <LoadingOverlay visible={isLoading} />
-    {/* content */}
-  </Box>
-  ```
-
-## Colors
-- Use theme colors via `useMantineTheme()` or `getThemeColor()`
-  ```typescript
-  import { useMantineTheme, getThemeColor } from '@mantine/core';
-  
-  const theme = useMantineTheme();
-  const primary = getThemeColor('blue', theme);
-  ```
-
-## Custom Styles
-- Use `createStyles` or inline `style` prop for one-off overrides
-- Avoid global CSS for component customization
-  ```typescript
-  import { createStyles } from '@mantine/core';
-  
-  const useStyles = createStyles((theme) => ({
-    customButton: {
-      backgroundColor: theme.colors.blue[5],
-    },
-  }));
-  
-  // Or inline:
-  <Box style={{ backgroundColor: 'blue' }} />
-  ```
+## Loading
+- `<LoadingOverlay visible={isLoading} />` inside a `pos="relative"` parent — never blank screens.
 
 ## Accessibility
-- Mantine handles basic a11y, but verify:
-  - Keyboard navigation works
-  - Focus management is correct
-  - ARIA labels on custom components
-  - Color contrast meets WCAG standards
+- Mantine covers basics; still verify keyboard nav, focus management, ARIA on custom components, contrast.

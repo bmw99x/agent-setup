@@ -74,6 +74,7 @@ General workflow skills (brainstorming, TDD, planning, debugging, subagent-drive
 | pydantic schema/DTO/validator                       | `pydantic`                    |
 | Postgres index add/remove/review                    | `db-indexes`                  |
 | Python diff/PR review                               | `python-reviewer`             |
+| function has too many params / introduce parameter object | `refactor-variable-explosion` |
 | spec-driven feature loop                            | `spec-kit`                    |
 | cross-session memory search/record                  | `claude-mem`                  |
 | Mantine v8 UI work                                  | `mantine`                     |

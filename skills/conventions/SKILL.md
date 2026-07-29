@@ -31,12 +31,12 @@ Dep direction: `routes → service → repository → models`. Domain knows noth
 
 ## Naming
 
-| Thing | Convention |
-|---|---|
-| Schema (read) | `<Resource>Datum` |
-| Schema (write) | `Upsert<Resource>Datum` |
-| Schema (bulk write) | `@dataclass` |
-| Error audit table | `<resource>_errors` — FK + timestamp as `failed_at` |
+| Thing               | Convention                                          |
+| ------------------- | --------------------------------------------------- |
+| Schema (read)       | `<Resource>Datum`                                   |
+| Schema (write)      | `Upsert<Resource>Datum`                             |
+| Schema (bulk write) | `@dataclass`                                        |
+| Error audit table   | `<resource>_errors` — FK + timestamp as `failed_at` |
 
 Adapt naming conventions to match existing patterns in the project before defaulting to these.
 
@@ -58,9 +58,41 @@ Service layer must not import transport, queue, or provider modules directly. In
 All imports at top of file — no inline or function-local imports.
 
 Exceptions (require a comment):
+
 - Breaking a real circular import
 - `TYPE_CHECKING`-only annotation imports
 
 ## Environment
 
 Use a `.env` file at repo root. Never hardcode secrets or environment-specific values.
+
+## Frontend: React Mutation Pattern
+
+All mutation hooks must expose **domain verbs** and **loading flags**, never raw mutation objects.
+
+### ❌ Bad — exposes mutation internals
+
+```typescript
+const { approveMutation, rejectMutation } = useMyMutations();
+<Button loading={approveMutation.isPending} onClick={() => approveMutation.mutate(id)} />
+```
+
+### ✅ Good — domain verbs hide side effects
+
+```typescript
+const { approve, isApproving } = useMyMutations();
+<Button loading={isApproving} onClick={approve} />
+```
+
+### Rules
+
+| Don't expose                                               | Do expose                        |
+| ---------------------------------------------------------- | -------------------------------- |
+| `approveMutation`, `rejectMutation`, `createJobMutation`   | `approve`, `reject`, `createJob` |
+| `handleApprove`, `handleReject`                            | `approve`, `reject`              |
+| `approveMutation.isPending`, `createJobMutation.isPending` | `isApproving`, `isCreating`      |
+
+- The hook owns the mutation, query invalidation, success side effects (modal close, form reset, toast), and guard logic (e.g. safety checks before mutating).
+- Components call domain verbs directly — they never import or reference mutation objects.
+- Loading flags use `is` + present-participle: `isApproving`, `isRejecting`, `isSending`, `isCreating`.
+- This applies to every mutation throughout the frontend, not just email.
