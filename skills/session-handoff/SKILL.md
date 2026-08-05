@@ -1,6 +1,6 @@
 ---
 name: session-handoff
-description: "Session handoff — preserve context across AI agent sessions. Use this skill when you need to save state, create a handoff, pause work, load a handoff, resume from a previous session, context is getting full (80%+), a major task milestone is completed, or you are switching tasks and need continuity. Proactively create handoffs after substantial work (5+ file edits, complex debugging, architecture decisions)."
+description: "Session handoff — preserve context across AI agent sessions. Use this skill when you need to save state, create a handoff, pause work, load a handoff, resume from a previous session, context is running low, a major task milestone is completed, or you are switching tasks and need continuity. Proactively create handoffs after multi-file work, complex debugging, or architecture decisions."
 ---
 
 # Session Handoff Skill
@@ -27,10 +27,10 @@ Creates comprehensive handoff documents that enable fresh AI agents to seamlessl
 
 ### Agent-Triggered (Proactive)
 
-- Context window approaching capacity (>80% full)
+- Context window running low
 - Major task milestone completed
 - Work session ending with significant progress
-- After substantial work (5+ file edits, complex debugging, architecture decisions)
+- After multi-file work, complex debugging, or architecture decisions
 - Before switching to a different task
 
 ### Resumption Scenarios

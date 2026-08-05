@@ -78,7 +78,7 @@ Why: pure helpers test with plain objects (no `AsyncSession`/repo fixtures), avo
 - [ ] No speculative abstractions or "future-proofing"
 - [ ] No dead code introduced
 - [ ] No duplicated logic that should reuse existing helper
-- [ ] Function length reasonable (\<~30 lines)
+- [ ] Each function does one thing at one level of abstraction
 
 ## 7. Naming
 

@@ -1,14 +1,14 @@
 ---
 name: refactor-variable-explosion
-description: 'Load when a function signature has grown past ~4-5 params, several params repeat together across signatures, or a chain of `if thing: filters.append(...)` blocks is duplicated — covers Introduce Parameter Object in Python'
+description: 'Load when the same cluster of parameters travels together through several function signatures, when a parameter list has grown long enough that call sites are hard to read, or when a chain of `if thing: filters.append(...)` blocks is duplicated — covers Introduce Parameter Object in Python'
 ---
 
 # Introduce Parameter Object (Python)
 
 ## Trigger
 
-- A function's arg list has grown past ~4-5 items and several are clearly related.
-- The same cluster of params repeats across multiple function signatures.
+- A function's arg list has grown long enough that call sites are hard to read, and several of the args are clearly related.
+- The same cluster of params repeats across multiple function signatures — the strongest signal, regardless of how long any single signature is.
 - A block of `if <cond>: result.append(...)` (or similar) is duplicated across methods and should become one pure, unit-testable function.
 
 ## Pattern

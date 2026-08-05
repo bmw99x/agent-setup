@@ -1,6 +1,6 @@
 ---
-name: testing-anti-patterns
-description: Load when writing or changing tests, adding mocks, or tempted to add test-only methods to production code
+name: testing
+description: Load when writing or changing tests, adding mocks, or tempted to add test-only methods to production code — covers the mock anti-patterns that make suites pass while the code is broken
 ---
 
 # Testing Anti-Patterns

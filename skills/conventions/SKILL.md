@@ -95,4 +95,4 @@ const { approve, isApproving } = useMyMutations();
 - The hook owns the mutation, query invalidation, success side effects (modal close, form reset, toast), and guard logic (e.g. safety checks before mutating).
 - Components call domain verbs directly — they never import or reference mutation objects.
 - Loading flags use `is` + present-participle: `isApproving`, `isRejecting`, `isSending`, `isCreating`.
-- This applies to every mutation throughout the frontend, not just email.
+- Apply this to every mutation in the codebase, not just the one you happen to be touching.
