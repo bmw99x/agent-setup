@@ -72,13 +72,11 @@ Why: pure helpers test with plain objects (no `AsyncSession`/repo fixtures), avo
 - [ ] Soft delete: queries outside repo include `deleted_at IS NULL` filter
 - [ ] UUID primary keys used (not int) where project convention expects them
 
-## 6. Simplicity
+## 6. Design
 
-- [ ] Every changed line traces to the task requirement
-- [ ] No speculative abstractions or "future-proofing"
-- [ ] No dead code introduced
-- [ ] No duplicated logic that should reuse existing helper
-- [ ] Each function does one thing at one level of abstraction
+Run `xp-reviewer` alongside this checklist — it owns the language-agnostic design review: scope
+creep, speculative abstraction, duplication vs wrong abstraction, dead code, composed method, and
+domain naming. This checklist stays Python- and stack-specific.
 
 ## 7. Naming
 

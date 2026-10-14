@@ -57,6 +57,10 @@ These follow Anthropic's [context-engineering guidance for Claude 5-generation m
 | `session-meditate` | Extract durable lessons at the end of a long session |
 | `claude-mem` | Persistent cross-session memory (claude-mem plugin) |
 | `license-audit` | Check dependency licenses for copyleft before and after install |
+| `ben-pair` | Autonomy ladder before asking or declaring done; forces the refactor beat |
+| `xp-reviewer` | Language-agnostic XP design lens (simple design, smells, domain naming); runs alongside stack reviewers |
+| `ci-shepherd` | Diagnose and repair failing GitHub/GitLab CI after push; never rewrites history |
+| `investigate-library-upgrade` | Written upgrade assessment (delta, call sites, transitive/security); stops before changing code |
 
 > Brainstorming, TDD, systematic debugging, planning, and code review come from the [Superpowers](https://github.com/obra/Superpowers) plugin — install per-provider via their marketplace.
 
