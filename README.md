@@ -46,6 +46,7 @@ These follow Anthropic's [context-engineering guidance for Claude 5-generation m
 | Skill | Purpose |
 |---|---|
 | `graphify` | Map unfamiliar code into a Mermaid diagram + narrative before editing |
+| `visuals-for-understanding` | One-page atlas of a codebase or MR: C4, sequence and data flow SVGs, an interactive call-graph/ripple explorer, an archify walkthrough |
 | `spec-kit` | Spec-driven development loop (specify → clarify → plan → slice → implement → PR) with approval gates |
 | `slicing` | Split work into foundation + independently reviewable behavior changes |
 | `worktree-flow` | Isolated branch/worktree setup, avoiding stacked-PR chains |

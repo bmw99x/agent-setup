@@ -1,0 +1,281 @@
+<title>__TITLE__</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;600&family=IBM+Plex+Sans:wght@400;500;600&display=swap">
+<style>
+/* Layout: sticky header with chapter tabs; one panel per view; diagrams centred at reading width, explorer and walkthrough full width */
+:root {
+  --bg: #f6f7f9; --panel: #ffffff; --line: #dde1e7; --ink: #18202b; --muted: #5d6877;
+  --accent: #2b55c9; --accent-soft: #e6ecfb; --axis: #8a93a1; --grid: #d3d8df; --tint: #eceff3;
+  --caller: #b5650d; --caller-soft: #fbeedd; --callee: #0f7a6c; --callee-soft: #dcf2ee;
+  --sans: "IBM Plex Sans", system-ui, -apple-system, "Segoe UI", sans-serif;
+  --mono: "IBM Plex Mono", ui-monospace, SFMono-Regular, Menlo, monospace;
+}
+@media (prefers-color-scheme: dark) { :root:not([data-theme="light"]) {
+  --bg: #11151b; --panel: #171c24; --line: #2a313c; --ink: #e5e9ef; --muted: #98a2b1;
+  --accent: #7c9cf2; --accent-soft: #1f2a45; --axis: #6f7886; --grid: #2f3742; --tint: #1d232c;
+  --caller: #e8a457; --caller-soft: #3a2a17; --callee: #4cc5b2; --callee-soft: #133430; color-scheme: dark } }
+:root[data-theme="dark"] {
+  --bg: #11151b; --panel: #171c24; --line: #2a313c; --ink: #e5e9ef; --muted: #98a2b1;
+  --accent: #7c9cf2; --accent-soft: #1f2a45; --axis: #6f7886; --grid: #2f3742; --tint: #1d232c;
+  --caller: #e8a457; --caller-soft: #3a2a17; --callee: #4cc5b2; --callee-soft: #133430; color-scheme: dark }
+* { box-sizing: border-box }
+body { background: var(--bg); color: var(--ink); font-family: var(--sans); font-size: 14px; line-height: 1.45;
+  padding-left: max(16px, env(safe-area-inset-left, 0px)); padding-right: max(16px, env(safe-area-inset-right, 0px)); padding-block: 0 40px }
+body::before { content: ""; position: fixed; inset: 0 0 auto; height: env(safe-area-inset-top, 0px); z-index: 10; background: var(--bg) }
+code, .mono { font-family: var(--mono); font-size: 12.5px }
+a { color: var(--accent) }
+.top { position: sticky; top: env(safe-area-inset-top, 0px); z-index: 7; background: var(--bg); border-bottom: 1px solid var(--line); padding-block: 14px 0 }
+.title-row { display: flex; flex-wrap: wrap; align-items: baseline; gap: 4px 16px }
+h1 { font-size: 19px; font-weight: 600; margin: 0; text-wrap: balance }
+.sub { color: var(--muted); font-size: 12.5px }
+nav { display: flex; gap: 2px; overflow-x: auto; margin-top: 10px; scrollbar-width: none }
+nav a { flex: none; padding: 8px 12px; color: var(--muted); text-decoration: none; border-bottom: 2px solid transparent; font-weight: 500 }
+nav a:hover { color: var(--ink) }
+nav a[aria-current="page"] { color: var(--ink); border-color: var(--accent) }
+nav a:focus-visible, button:focus-visible, input:focus-visible { outline: 2px solid var(--accent); outline-offset: 1px }
+.panel { padding-top: 20px }
+.lead { max-width: 72ch; margin: 0 0 14px; text-wrap: pretty }
+.figure { background: var(--panel); border: 1px solid var(--line); border-radius: 8px; padding: 12px; max-width: 900px; overflow-x: auto }
+.figure svg { display: block; width: 100%; min-width: 640px; height: auto; font-family: var(--sans) }
+.notes { max-width: 72ch; color: var(--muted); margin: 12px 0 0; padding-left: 18px }
+.notes li + li { margin-top: 4px }
+/* dependency explorer */
+.dep-bar { display: flex; flex-wrap: wrap; gap: 10px 20px; align-items: center; margin-bottom: 14px }
+.search { position: relative; flex: 1 1 280px; max-width: 520px; min-width: 0 }
+.search input { width: 100%; font-family: var(--mono); font-size: 13px; padding: 8px 10px; border: 1px solid var(--line); border-radius: 6px; background: var(--panel); color: var(--ink) }
+#results { position: absolute; left: 0; right: 0; top: 100%; margin-top: 4px; background: var(--panel); border: 1px solid var(--line); border-radius: 6px; max-height: 340px; overflow: auto; z-index: 6 }
+#results button { display: block; width: 100%; text-align: left; border: 0; background: none; padding: 6px 10px; color: var(--ink); font: inherit; cursor: pointer }
+#results button:hover { background: var(--accent-soft) }
+.opts { display: flex; gap: 14px; flex-wrap: wrap; color: var(--muted); font-size: 12.5px }
+.opts label { display: inline-flex; gap: 6px; align-items: center; cursor: pointer }
+.layout { display: grid; grid-template-columns: 260px minmax(0, 1fr); gap: 20px }
+@media (max-width: 860px) { .layout { grid-template-columns: minmax(0, 1fr) } }
+aside { display: flex; flex-direction: column; gap: 16px; min-width: 0 }
+h2 { font-size: 11.5px; font-weight: 600; text-transform: uppercase; letter-spacing: .06em; color: var(--muted); margin: 0 0 6px }
+.list { display: flex; flex-direction: column }
+.list button { display: flex; justify-content: space-between; gap: 8px; border: 0; background: none; color: var(--ink); text-align: left; padding: 4px 6px; border-radius: 4px; cursor: pointer; font-family: var(--mono); font-size: 12px; min-width: 0 }
+.list button span:first-child { overflow: hidden; text-overflow: ellipsis; white-space: nowrap }
+.list button:hover { background: var(--accent-soft) }
+.list .n { color: var(--muted); font-variant-numeric: tabular-nums; flex: none }
+.dep-main { display: flex; flex-direction: column; gap: 18px; min-width: 0 }
+.card { background: var(--panel); border: 1px solid var(--line); border-radius: 8px; padding: 14px 16px; min-width: 0 }
+.sel-name { font-family: var(--mono); font-size: 16px; font-weight: 600; word-break: break-all }
+.meta { display: flex; flex-wrap: wrap; gap: 6px 14px; color: var(--muted); font-size: 12.5px; margin-top: 4px }
+.doc { margin: 8px 0 0; max-width: 72ch }
+.chip { display: inline-block; font-size: 11px; font-weight: 600; letter-spacing: .04em; text-transform: uppercase; padding: 1px 6px; border-radius: 4px; background: var(--accent-soft); color: var(--accent) }
+.stats { display: grid; grid-template-columns: repeat(auto-fit, minmax(140px, 1fr)); gap: 10px; margin-top: 12px }
+.stat { border-left: 3px solid var(--line); padding-left: 10px }
+.stat b { display: block; font-size: 20px; font-variant-numeric: tabular-nums }
+.stat.caller { border-color: var(--caller) } .stat.callee { border-color: var(--callee) } .stat.entry { border-color: var(--accent) }
+.stat span { color: var(--muted); font-size: 12px }
+.graph-wrap { overflow-x: auto; background: var(--panel); border: 1px solid var(--line); border-radius: 8px }
+#graph text { font-family: var(--mono) }
+.legend { display: flex; flex-wrap: wrap; gap: 14px; color: var(--muted); font-size: 12px; margin-top: 6px }
+.legend i { display: inline-block; width: 18px; height: 0; border-top: 2px solid; vertical-align: middle; margin-right: 4px }
+.cols { display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 18px }
+table { width: 100%; border-collapse: collapse; font-size: 12.5px }
+th { text-align: left; font-weight: 600; color: var(--muted); font-size: 11.5px; padding: 4px 6px; border-bottom: 1px solid var(--line) }
+td { padding: 3px 6px; border-bottom: 1px solid var(--line); vertical-align: top }
+td.d { width: 1%; font-variant-numeric: tabular-nums; color: var(--muted) }
+td button { border: 0; background: none; color: var(--ink); font-family: var(--mono); font-size: 12px; padding: 0; cursor: pointer; text-align: left; word-break: break-all }
+td button:hover { color: var(--accent); text-decoration: underline }
+.tbl { max-height: 420px; overflow: auto }
+.empty { color: var(--muted); font-style: italic }
+/* walkthrough */
+.frame-wrap { border: 1px solid var(--line); border-radius: 8px; overflow: hidden; background: var(--panel) }
+#walk-frame { display: block; width: 100%; height: min(980px, 82vh); min-height: 560px; border: 0 }
+</style>
+
+<div class="top">
+  <div class="title-row">
+    <h1>__HEADING__</h1>
+    <span class="sub">__SUBTITLE__</span>
+  </div>
+  <nav aria-label="Views">__NAV__</nav>
+</div>
+
+__PANELS__
+<!--DEP-->
+<section class="panel" id="p-dependencies" hidden>
+  <p class="lead">__DEP_LEAD__</p>
+  <div class="dep-bar">
+    <div class="search">
+      <input id="q" type="search" placeholder="Find a function, method or class…" autocomplete="off" aria-label="Find a symbol">
+      <div id="results" hidden></div>
+    </div>
+    <div class="opts">
+      <label><input id="opt-refs" type="checkbox" checked> count references (partial, callbacks, wiring)</label>
+      <label><input id="opt-classes" type="checkbox" checked> include classes</label>
+    </div>
+    <span class="sub" id="totals"></span>
+  </div>
+  <div class="layout">
+    <aside>
+      <section><h2>Entry points</h2><div class="list" id="entries"></div></section>
+      <section><h2>Most depended on</h2><div class="list" id="fanin"></div></section>
+      <section><h2>Widest ripple</h2><div class="list" id="ripple-top"></div></section>
+    </aside>
+    <div class="dep-main">
+      <div class="card" id="sel"></div>
+      <section>
+        <h2>Neighbourhood · two hops each way</h2>
+        <div class="graph-wrap"><svg id="graph" role="img" aria-label="Callers and callees of the selected symbol"></svg></div>
+        <div class="legend"><span><i style="border-color:var(--caller)"></i>caller side</span><span><i style="border-color:var(--callee)"></i>callee side</span><span><i style="border-color:var(--muted);border-top-style:dashed"></i>reference or inferred</span><span>click a box to re-centre</span></div>
+      </section>
+      <div class="cols">
+        <section class="card"><h2>Ripple: what a change here can break</h2><div class="tbl" id="up"></div></section>
+        <section class="card"><h2>Depends on: what can break this</h2><div class="tbl" id="down"></div></section>
+      </div>
+    </div>
+  </div>
+</section>
+<!--/DEP-->
+<!--WALK-->
+<section class="panel" id="p-walkthrough" hidden>
+  <p class="lead">__WALK_LEAD__</p>
+  <div class="frame-wrap"><iframe id="walk-frame" title="Walkthrough"></iframe></div>
+</section>
+<script id="archify-src" type="application/octet-stream">__ARCHIFY_B64__</script>
+<!--/WALK-->
+<script>
+const VIEWS = __VIEWS__;
+let walkLoaded = false;
+function show() {
+  const name = VIEWS.includes(location.hash.slice(1)) ? location.hash.slice(1) : VIEWS[0];
+  for (const v of VIEWS) document.getElementById("p-" + v).hidden = v !== name;
+  document.querySelectorAll("nav a").forEach(a => { if (a.getAttribute("href") === "#" + name) a.setAttribute("aria-current", "page"); else a.removeAttribute("aria-current"); });
+  const src = document.getElementById("archify-src");
+  if (name === "walkthrough" && src && !walkLoaded) {
+    const bytes = Uint8Array.from(atob(src.textContent.trim()), c => c.charCodeAt(0));
+    document.getElementById("walk-frame").srcdoc = new TextDecoder().decode(bytes);
+    walkLoaded = true;
+  }
+}
+window.addEventListener("hashchange", show);
+show();
+</script>
+<!--DEP-->
+<script>
+const GRAPH = __GRAPH__;
+const SOURCE_URL = __SOURCE_URL__; // prefix joined with a node's repo path, "" for no links
+const byId = new Map(GRAPH.nodes.map(n => [n.id, n]));
+const $ = id => document.getElementById(id);
+const short = id => id;
+const pathOf = n => n.path;
+const opts = { refs: true, classes: true };
+let out, inn;
+
+function rebuild() {
+  out = new Map(); inn = new Map();
+  for (const n of GRAPH.nodes) { out.set(n.id, []); inn.set(n.id, []); }
+  for (const e of GRAPH.edges) {
+    if (!opts.refs && e.kind === "ref") continue;
+    const a = byId.get(e.from), b = byId.get(e.to);
+    if (!a || !b) continue;
+    if (!opts.classes && (a.kind === "class" || b.kind === "class")) continue;
+    out.get(e.from).push(e); inn.get(e.to).push(e);
+  }
+}
+function reach(start, adj, key) {
+  const depth = new Map([[start, 0]]), q = [start];
+  while (q.length) { const id = q.shift(); for (const e of adj.get(id)) { const nx = e[key]; if (!depth.has(nx)) { depth.set(nx, depth.get(id) + 1); q.push(nx); } } }
+  depth.delete(start); return depth;
+}
+const upOf = id => reach(id, inn, "from"), downOf = id => reach(id, out, "to");
+
+function listButtons(el, rows) {
+  el.replaceChildren(...rows.map(([id, n]) => { const b = document.createElement("button"); b.title = short(id);
+    b.innerHTML = `<span>${byId.get(id).name}</span><span class="n">${n}</span>`; b.onclick = () => select(id); return b; }));
+}
+function sidebar() {
+  listButtons($("entries"), GRAPH.nodes.filter(n => n.entry).map(n => [n.id, downOf(n.id).size]));
+  const fan = GRAPH.nodes.filter(n => opts.classes || n.kind !== "class").map(n => [n.id, inn.get(n.id).length]).sort((a, b) => b[1] - a[1]).slice(0, 12);
+  listButtons($("fanin"), fan);
+  const rip = GRAPH.nodes.filter(n => n.kind !== "class" && !n.entry).map(n => [n.id, upOf(n.id).size]).sort((a, b) => b[1] - a[1]).slice(0, 12);
+  listButtons($("ripple-top"), rip);
+  $("totals").textContent = `${GRAPH.nodes.length} symbols · ${GRAPH.edges.length} edges, static analysis`;
+}
+
+function table(el, depths, color) {
+  if (!depths.size) { el.innerHTML = `<p class="empty">Nothing in the package.</p>`; return; }
+  const rows = [...depths].sort((a, b) => a[1] - b[1] || a[0].localeCompare(b[0]));
+  const t = document.createElement("table");
+  t.innerHTML = `<thead><tr><th>hop</th><th>symbol</th><th>module</th></tr></thead>`;
+  const tb = document.createElement("tbody");
+  for (const [id, d] of rows) { const n = byId.get(id); const tr = document.createElement("tr");
+    tr.innerHTML = `<td class="d" style="color:${color}">${d}</td><td></td><td class="mono" style="color:var(--muted)">${n.module}</td>`;
+    const b = document.createElement("button"); b.textContent = n.name; b.title = n.doc || short(id); b.onclick = () => select(id); tr.children[1].append(b); tb.append(tr); }
+  t.append(tb); el.replaceChildren(t);
+}
+
+const esc = s => s.replace(/[&<>"]/g, c => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c]));
+function select(id) {
+  const n = byId.get(id); if (!n) return;
+  const up = upOf(id), down = downOf(id);
+  const entries = [...up.keys()].filter(k => byId.get(k).entry).map(k => byId.get(k).name);
+  const mods = new Set([...up.keys()].map(k => byId.get(k).module));
+  $("sel").innerHTML = `<span class="chip">${n.kind}</span>
+    <div class="sel-name">${esc(n.name)}</div>
+    <div class="meta"><span class="mono">${esc(short(id))}</span>${SOURCE_URL ? `<a href="${SOURCE_URL}${pathOf(n)}#L${n.line}" target="_blank" rel="noopener">${pathOf(n)}:${n.line}</a>` : `<span class="mono">${pathOf(n)}:${n.line}</span>`}<span>${n.loc} lines</span></div>
+    ${n.doc ? `<p class="doc">${esc(n.doc)}</p>` : ""}
+    <div class="stats">
+      <div class="stat caller"><b>${inn.get(id).length}</b><span>direct callers</span></div>
+      <div class="stat caller"><b>${up.size}</b><span>transitive dependants in ${mods.size} modules</span></div>
+      <div class="stat callee"><b>${out.get(id).length}</b><span>direct callees</span></div>
+      <div class="stat entry"><b>${entries.length}</b><span>${entries.length ? "commands reach it: " + entries.join(", ") : "commands reach it"}</span></div>
+    </div>`;
+  table($("up"), up, "var(--caller)"); table($("down"), down, "var(--callee)");
+  draw(id);
+  $("q").value = ""; $("results").hidden = true;
+}
+
+function draw(id) {
+  const MAX = 12, W = 196, H = 26, GAPX = 44, GAPY = 8, PAD = 16;
+  const ring = (start, adj, key) => { const d1 = [...new Set(adj.get(start).map(e => e[key]))].filter(x => x !== start);
+    const d2 = [...new Set(d1.flatMap(x => adj.get(x).map(e => e[key])))].filter(x => x !== start && !d1.includes(x)); return [d1, d2]; };
+  const [u1, u2] = ring(id, inn, "from"), [d1, d2] = ring(id, out, "to");
+  const cols = [u2, u1, [id], d1, d2].map(c => ({ ids: c.slice(0, MAX), more: Math.max(0, c.length - MAX) }));
+  const rows = Math.max(...cols.map(c => c.ids.length + (c.more ? 1 : 0)), 1);
+  const width = PAD * 2 + 5 * W + 4 * GAPX, height = PAD * 2 + 22 + rows * (H + GAPY);
+  const pos = new Map();
+  cols.forEach((c, ci) => { const top = PAD + 22 + (rows - c.ids.length - (c.more ? 1 : 0)) * (H + GAPY) / 2;
+    c.ids.forEach((nid, ri) => { if (!pos.has(nid) || ci === 2) pos.set(nid, { x: PAD + ci * (W + GAPX), y: top + ri * (H + GAPY), ci }); }); });
+  const svg = $("graph"); svg.setAttribute("viewBox", `0 0 ${width} ${height}`); svg.setAttribute("width", width); svg.setAttribute("height", height);
+  const heads = ["callers, 2 hops", "direct callers", "selected", "direct callees", "callees, 2 hops"];
+  let s = heads.map((h, i) => `<text x="${PAD + i * (W + GAPX) + W / 2}" y="${PAD + 8}" text-anchor="middle" font-size="11" fill="var(--muted)" style="font-family:var(--sans)">${h}</text>`).join("");
+  const edgeSet = [];
+  for (const e of GRAPH.edges) { if (!out.get(e.from).includes(e)) continue; const a = pos.get(e.from), b = pos.get(e.to); if (!a || !b) continue;
+    if (b.ci - a.ci === 1) edgeSet.push([a, b, e]); }
+  for (const [a, b, e] of edgeSet) { const x1 = a.x + W, y1 = a.y + H / 2, x2 = b.x, y2 = b.y + H / 2, mx = (x1 + x2) / 2;
+    const col = b.ci <= 2 ? "var(--caller)" : "var(--callee)";
+    s += `<path d="M${x1} ${y1}C${mx} ${y1} ${mx} ${y2} ${x2} ${y2}" fill="none" stroke="${col}" stroke-opacity=".7" stroke-width="1.2" ${e.kind !== "call" || e.inferred ? 'stroke-dasharray="4 3"' : ""}/>`; }
+  cols.forEach((c, ci) => { c.ids.forEach(nid => { const p = pos.get(nid); if (p.ci !== ci) return; const n = byId.get(nid);
+      const fill = ci === 2 ? "var(--accent-soft)" : ci < 2 ? "var(--caller-soft)" : "var(--callee-soft)";
+      const stroke = ci === 2 ? "var(--accent)" : ci < 2 ? "var(--caller)" : "var(--callee)";
+      const label = n.name.length > 26 ? n.name.slice(0, 25) + "…" : n.name;
+      s += `<g class="node" data-id="${nid}" style="cursor:pointer"><title>${esc(short(nid))}${n.doc ? "\n" + esc(n.doc) : ""}</title><rect x="${p.x}" y="${p.y}" width="${W}" height="${H}" rx="5" fill="${fill}" stroke="${stroke}" stroke-width="${ci === 2 ? 2 : 1}"/><text x="${p.x + 8}" y="${p.y + 17}" font-size="11.5" fill="var(--ink)">${esc(label)}</text></g>`; });
+    if (c.more) { const y = PAD + 22 + (rows - c.ids.length - 1) * (H + GAPY) / 2 + c.ids.length * (H + GAPY);
+      s += `<text x="${PAD + ci * (W + GAPX) + 8}" y="${y + 17}" font-size="11" fill="var(--muted)">+${c.more} more (see lists below)</text>`; } });
+  svg.innerHTML = s;
+  svg.querySelectorAll(".node").forEach(g => g.addEventListener("click", () => select(g.dataset.id)));
+}
+
+const q = $("q"), res = $("results");
+q.addEventListener("input", () => {
+  const term = q.value.trim().toLowerCase(); if (!term) { res.hidden = true; return; }
+  const hits = GRAPH.nodes.filter(n => n.id.toLowerCase().includes(term)).sort((a, b) => (a.name.toLowerCase().startsWith(term) ? 0 : 1) - (b.name.toLowerCase().startsWith(term) ? 0 : 1) || a.name.length - b.name.length).slice(0, 30);
+  res.replaceChildren(...hits.map(n => { const b = document.createElement("button"); b.innerHTML = `<span class="mono">${esc(n.name)}</span> <span class="sub">${n.module}</span>`; b.onclick = () => select(n.id); return b; }));
+  res.hidden = !hits.length;
+});
+q.addEventListener("keydown", e => { if (e.key === "Enter") { const b = res.querySelector("button"); if (b) b.click(); } if (e.key === "Escape") res.hidden = true; });
+document.addEventListener("click", e => { if (!e.target.closest(".search")) res.hidden = true; });
+let current = __DEFAULT_SYMBOL__ || (GRAPH.nodes.find(n => n.entry) || GRAPH.nodes[0]).id;
+const refresh = () => { rebuild(); sidebar(); select(current); };
+$("opt-refs").addEventListener("change", e => { opts.refs = e.target.checked; refresh(); });
+$("opt-classes").addEventListener("change", e => { opts.classes = e.target.checked; refresh(); });
+const origSelect = select;
+select = id => { current = id; origSelect(id); };
+refresh();
+</script>
+<!--/DEP-->
