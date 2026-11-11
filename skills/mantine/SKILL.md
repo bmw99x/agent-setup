@@ -32,6 +32,7 @@ A CSS class that only sets things props can express (width, height, background, 
 - **Never `style={{ ... }}`** — not even for "no prop exists". Use a CSS module class instead. `style={{ overflow: "hidden" }}` → `.wrap { overflow: hidden }` + `className={classes.wrap}`.
 - **No curly braces around string-literal props.** `w="100%"` not `w={"100%"}`. `h="100%"` not `h={"100%"}`.
 - **No `createStyles`.** It was removed in v8 — use props → `classNames` → CSS modules.
+- **No fractional values.** Avoid decimals like `lh={1.35}`, `0.375rem`, `0.09rem`: use a theme token (`lh="sm"`, `gap="xs"`), a whole-number `px`/`rem`, or `1px` for hairlines. If a fractional value seems needed, the design is off the scale; pick the nearest token.
 - **Don't hand-roll layout** (`display:flex; flex-direction:column`) when `<Stack>`/`<Group>`/`orientation` props exist.
 - **`gap`/`spacing` use theme tokens** (`gap="xs"`), not raw rem, unless a specific value is required.
 

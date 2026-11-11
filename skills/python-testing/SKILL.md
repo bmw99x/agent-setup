@@ -83,7 +83,7 @@ async def test_handler_called() -> None:
     THEN handler.on_success is called once
     """
     resource = _make_resource()
-    handler = RecordingHandler()
+    handler = SpyHandler()
 
     await process_resource(
         resource.id,
@@ -91,7 +91,7 @@ async def test_handler_called() -> None:
         handler=handler,
     )
 
-    assert len(handler.success_calls) == 1
+    assert len(handler.successes) == 1
 ```
 
-`RecordingHandler` (or similar) implements the Protocol and records calls. Use `AsyncMock(return_value=...)` for async callables. Inject fake providers to simulate failures.
+`SpyHandler` (or similar) implements the Protocol and records calls. Use `AsyncMock(return_value=...)` for async callables. Inject fake providers to simulate failures.

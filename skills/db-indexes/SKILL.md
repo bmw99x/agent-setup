@@ -21,7 +21,7 @@ gsx_<table>_<col>                      # GiST index (geospatial)
 
 Examples:
 ```
-ix_settings_key_domain  -- partial unique (deleted_at IS NULL)
+ix_products_sku_region  -- partial unique (deleted_at IS NULL)
 ix_orders_customer_id   -- FK lookup
 ```
 
@@ -49,7 +49,7 @@ Add migration: `alembic revision --autogenerate` then check autogen output — p
 All unique indexes on soft-deletable tables must include `postgresql_where="deleted_at IS NULL"`:
 
 ```python
-Index("ix_settings_key_domain", "key", "domain",
+Index("ix_products_sku_region", "sku", "region",
       postgresql_where="deleted_at IS NULL", unique=True)
 ```
 
@@ -102,7 +102,7 @@ op.execute("DROP INDEX CONCURRENTLY IF EXISTS ix_foo_bar")
 
 | Table | Index | Columns | Type | Notes |
 |-------|-------|---------|------|-------|
-| settings | `ix_settings_key_domain` | key, domain | B-tree partial unique | `deleted_at IS NULL` |
+| products | `ix_products_sku_region` | sku, region | B-tree partial unique | `deleted_at IS NULL` |
 | orders | `ix_orders_customer_id` | customer_id | B-tree | FK lookup |
 
 _Add new rows here when creating indexes._

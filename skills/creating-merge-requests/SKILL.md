@@ -15,7 +15,7 @@ Trigger: "create an mr", "push mr", "spin up a merge request", "raise mr", "open
 4. Check whether a diagram helps (architecture/flow change, multi-service interaction) — if so, produce a small mermaid diagram; skip if the change is trivial or localized.
 5. Build the body from the template below.
 6. Create it with the host's CLI — `glab mr create --title "<type>(<scope>): <desc>" --description-file <tmpfile> --target-branch <default>` on GitLab, `gh pr create` on GitHub. Prefer an explicit body; `--fill` only for trivial one-liners.
-7. Link the MR back to each confirmed ticket and move it to the project's review status.
+7. Link the MR back to each confirmed ticket and move it to the project's *code review* status — not a later review/QA status, which waits for a deployed preview (the tracker skill owns the names). Leave the status alone for a Draft MR blocked on another change.
 
 ## Finding the relevant tickets
 

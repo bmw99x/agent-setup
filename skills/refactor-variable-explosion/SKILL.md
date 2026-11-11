@@ -25,22 +25,22 @@ description: 'Load when the same cluster of parameters travels together through 
 from dataclasses import dataclass, field
 
 @dataclass(frozen=True)
-class JobListFilters:
+class OrderListFilters:
     status: list[str] | None = None
-    company_name: str | None = None
-    include_test: bool = False
+    customer_name: str | None = None
+    include_archived: bool = False
 
-def _build_filters(filters: JobListFilters) -> list:
+def _build_filters(filters: OrderListFilters) -> list:
     result = []
     if filters.status:
         result.append(CollectionFilter(field_name="status", values=filters.status))
-    if filters.company_name:
-        result.append(CompanyNameFilter(filters.company_name))
-    if not filters.include_test:
-        result.append(CollectionFilter(field_name="is_test", values=[False]))
+    if filters.customer_name:
+        result.append(CustomerNameFilter(filters.customer_name))
+    if not filters.include_archived:
+        result.append(CollectionFilter(field_name="is_archived", values=[False]))
     return result
 
-async def list_jobs(self, *, page: int, page_size: int, order_by: OrderBy, filters: JobListFilters):
+async def list_orders(self, *, page: int, page_size: int, order_by: OrderBy, filters: OrderListFilters):
     query_filters = [LimitOffset(...), order_by, *_build_filters(filters)]
     return await self.list_and_count(*query_filters)
 ```

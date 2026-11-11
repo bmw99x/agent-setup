@@ -28,10 +28,10 @@ Do not inherit from `BaseModel` directly — use the project base model.
 
 | Purpose | Suffix | Example |
 |---------|--------|---------|
-| Read (GET response) | `Datum` | `SettingsDatum` |
-| Write (POST/PUT/PATCH body) | `Upsert` / `UpsertDatum` | `SettingsUpsertDatum` |
-| Bulk write | `UpsertMany` (dataclass) | `SettingsUpsertMany` |
-| Filtered read | descriptive | `DomainSpecificSettingsDatum` |
+| Read (GET response) | `Datum` | `ProductDatum` |
+| Write (POST/PUT/PATCH body) | `Upsert` / `UpsertDatum` | `ProductUpsertDatum` |
+| Bulk write | `UpsertMany` (dataclass) | `ProductUpsertMany` |
+| Filtered read | descriptive | `DiscountedProductDatum` |
 
 Bulk write payloads use `@dataclass`, not the project base model:
 
@@ -39,8 +39,8 @@ Bulk write payloads use `@dataclass`, not the project base model:
 from dataclasses import dataclass
 
 @dataclass
-class SettingsUpsertMany:
-    data: list[SettingsUpsertDatum]
+class ProductUpsertMany:
+    data: list[ProductUpsertDatum]
 ```
 
 ## Fields
@@ -57,6 +57,7 @@ class SettingsUpsertMany:
 - `@model_validator(mode="after")` for cross-field validation
 - No side effects in validators — pure validation only
 - Shared validators: module-level functions, imported where needed
+- A field accepting several input shapes (an int or a list of ints folded to one mask): `Annotated[int | None, BeforeValidator(fold), AfterValidator(check)]`, not a custom class with `__get_pydantic_core_schema__`. Raise `PydanticCustomError` from validators so 422 responses serialise.
 
 ## Serialisation
 

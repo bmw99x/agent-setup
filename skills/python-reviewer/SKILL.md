@@ -45,19 +45,19 @@ Block on any failure. Fix root cause, not symptom.
 ```python
 # ❌ helper does its own IO — can't unit test without a DB/mock, and if two
 # orchestrating methods each need the same row this refetches it every time
-async def _classify(self, job_id: UUID) -> Findings:
-    job = await self.repository.get(job_id)
-    template = await self.templates_repo.get_one_or_none(provider_template_id=job.provider_template_id)
+async def _classify(self, order_id: UUID) -> Findings:
+    order = await self.repository.get(order_id)
+    plan = await self.plans_repo.get_one_or_none(external_plan_id=order.external_plan_id)
     ...
 
 # ✅ caller fetches once, helper is a plain sync function of its inputs
-def _classify(self, job: Job, template: Template | None) -> Findings:
+def _classify(self, order: Order, plan: Plan | None) -> Findings:
     ...
 
-async def approve(self, job_id: UUID) -> Job:
-    job = await self.repository.get(job_id)
-    template = await self.templates_repo.get_one_or_none(provider_template_id=job.provider_template_id)
-    findings = self._classify(job, template)  # no await, no mocking needed to test
+async def approve(self, order_id: UUID) -> Order:
+    order = await self.repository.get(order_id)
+    plan = await self.plans_repo.get_one_or_none(external_plan_id=order.external_plan_id)
+    findings = self._classify(order, plan)  # no await, no mocking needed to test
     ...
 ```
 

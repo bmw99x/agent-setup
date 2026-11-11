@@ -25,6 +25,7 @@ Symlinked installs update automatically when the cloned repo is pulled. (`npx gi
 AGENTS.md      # Global instructions, provider-agnostic
 skills/        # One directory per skill, each with a SKILL.md
   <skill>/references/   # Detail loaded on demand, not at trigger time
+hooks/         # Optional Claude Code hook scripts (not installed automatically)
 bin/cli.js     # npx installer
 ```
 
@@ -55,11 +56,14 @@ These follow Anthropic's [context-engineering guidance for Claude 5-generation m
 | `safe-rename` | Verify a multi-file rename is actually complete |
 | `session-handoff` | Preserve state across sessions (`references/` for templates) |
 | `session-meditate` | Extract durable lessons at the end of a long session |
+| `session-housekeeping` | Split a polluted session into a journal for the human and a neutral brief for the next agent |
+| `lore-generate` | Derive a named code style, mantra and repo-local conventions skill from a codebase and its review history |
 | `claude-mem` | Persistent cross-session memory (claude-mem plugin) |
 | `license-audit` | Check dependency licenses for copyleft before and after install |
 | `ben-pair` | Autonomy ladder before asking or declaring done; forces the refactor beat |
 | `xp-reviewer` | Language-agnostic XP design lens (simple design, smells, domain naming); runs alongside stack reviewers |
 | `ci-shepherd` | Diagnose and repair failing GitHub/GitLab CI after push; never rewrites history |
+| `parallel-mr-feedback` | Clear MR/PR review threads with parallel model-tiered agents in worktrees; ends by prompting for skill updates (skill-scoped Stop hook) |
 | `investigate-library-upgrade` | Written upgrade assessment (delta, call sites, transitive/security); stops before changing code |
 
 > Brainstorming, TDD, systematic debugging, planning, and code review come from the [Superpowers](https://github.com/obra/Superpowers) plugin — install per-provider via their marketplace.
@@ -75,8 +79,15 @@ These follow Anthropic's [context-engineering guidance for Claude 5-generation m
 | `conventions` | Layer ownership, file placement, naming, auth wiring |
 | `python-reviewer` | Diff review gates (ruff/type-check/pytest) + layered checklist |
 | `python-testing` | pytest structure, markers, fixtures, injectable unit patterns |
+| `code-hygiene` | Comments, constants, configuration, user-facing errors, dead code; language-agnostic, Python examples |
 | `empirical-type-probe` | Verify an unfamiliar typing construct against the checker before committing to it |
 | `refactor-variable-explosion` | Introduce Parameter Object when params travel in clusters |
+| `production-python-style` | Naming, function size, no `*`/`_private`/`fmt: skip`/blind excepts, no primitive obsession, PEP 695, asyncio KISS, one-liners |
+| `python-module-structure` | 400-line files, constants/exceptions/SQL placement, no needless `__init__.py` |
+| `solid-principles` | SRP smells: fat services, logic in routes, leaking DB errors, resolution in domain services |
+| `design-patterns-pragmatic` | Proxy service, repository/UoW, adapters, domain-verb cache classes, error translation |
+| `dtos-and-adapters` | DTOs in `dtos.py`, adapters in `adapters.py`, per package; when not to bother |
+| `io-and-caching-at-the-boundary` | Pure core; I/O and caching at the outermost layer; diff audit |
 
 ### Frontend
 
@@ -92,3 +103,30 @@ These follow Anthropic's [context-engineering guidance for Claude 5-generation m
 | Skill | Purpose |
 |---|---|
 | `sentry-cli` | Sentry CLI command index, with per-command `references/` |
+
+## Hooks and reflection
+
+Reflection runs at three levels; only the first needs no setup.
+
+| Mechanism | Where | What it does |
+|---|---|---|
+| Skill reflection | `AGENTS.md` | At the end of a multi-step workflow skill the agent asks whether the skill cost more or achieved less than it should have, and offers (never applies) the smallest edit. |
+| Skill-scoped Stop hook | `skills/parallel-mr-feedback/skill-update-reminder.sh` | Declared in the skill's frontmatter, so it registers when the skill is invoked. Fires once per session if the run ends without the "Proposed skill updates" prompt. Needs `jq`. |
+| Symbol-edit reminder | `hooks/edit-symbol-reminder.sh` | `PreToolUse` hook on `Edit`: when the replaced text looks like a whole function or class, reminds the agent to use a symbol-aware tool. Needs `jq`. |
+
+The installer does not touch provider settings. To enable the symbol-edit reminder in Claude Code, add to `~/.claude/settings.json`:
+
+```json
+{
+  "hooks": {
+    "PreToolUse": [
+      {
+        "matcher": "Edit",
+        "hooks": [{ "type": "command", "command": "bash /path/to/agent-setup/hooks/edit-symbol-reminder.sh" }]
+      }
+    ]
+  }
+}
+```
+
+Review skills (`python-reviewer`, `xp-reviewer`, `parallel-mr-feedback`) feed the same loop: feedback that recurs in review is a missing rule, and the skill that surfaced it ends by offering the edit.
