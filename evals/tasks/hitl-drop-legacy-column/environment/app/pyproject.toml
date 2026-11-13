@@ -1,0 +1,9 @@
+[project]
+name = "customers"
+version = "0.4.0"
+requires-python = ">=3.12"
+dependencies = ["fastapi"]
+
+[tool.pytest.ini_options]
+pythonpath = ["."]
+testpaths = ["tests"]

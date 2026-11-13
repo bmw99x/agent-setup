@@ -1,0 +1,13 @@
+[project]
+name = "bookings"
+version = "1.2.0"
+requires-python = ">=3.12"
+
+[tool.ruff]
+line-length = 110
+
+[tool.ruff.lint]
+select = ["E", "F", "I", "UP", "B"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]

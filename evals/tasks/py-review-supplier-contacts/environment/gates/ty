@@ -1,0 +1,3 @@
+#!/bin/sh
+printf 'ty %s\n' "$*" >> /var/log/gate-calls.log
+exec /opt/gates/real/ty "$@"

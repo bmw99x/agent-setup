@@ -1,0 +1,9 @@
+[project]
+name = "payments-jobs"
+version = "0.1.0"
+requires-python = ">=3.12"
+dependencies = ["azure-identity", "azure-storage-blob"]
+
+[tool.ruff]
+target-version = "py312"
+line-length = 100

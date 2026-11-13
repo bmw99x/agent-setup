@@ -1,0 +1,11 @@
+[project]
+name = "catalog-sync"
+version = "0.7.0"
+description = "Keeps our product catalogue in step with the supplier's API."
+requires-python = ">=3.10"
+dependencies = ["tidyhttp>=1.0,<3"]
+
+[tool.uv]
+# Builds run without internet; packages come from the internal wheel mirror.
+no-index = true
+find-links = ["/opt/wheels"]

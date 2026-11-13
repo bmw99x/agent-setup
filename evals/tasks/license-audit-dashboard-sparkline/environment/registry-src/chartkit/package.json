@@ -1,0 +1,8 @@
+{
+  "name": "chartkit",
+  "version": "3.2.0",
+  "description": "Tiny SVG charts: sparklines, bars, donuts",
+  "main": "index.js",
+  "license": "ISC",
+  "dependencies": { "svgpath-tools": "^1.6.0" }
+}

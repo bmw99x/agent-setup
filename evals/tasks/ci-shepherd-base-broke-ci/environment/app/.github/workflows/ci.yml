@@ -1,0 +1,44 @@
+name: CI
+on:
+  pull_request:
+  push:
+    branches: [main]
+
+jobs:
+  lint:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with: {python-version: "3.12"}
+      - run: pip install ruff==0.8.4
+      - run: ruff check .
+
+  unit-tests:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with: {python-version: "3.12"}
+      - run: pip install -e . pytest==8.3.4
+      - name: Run pytest
+        run: pytest -q
+
+  e2e:
+    name: e2e (staging)
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@v4
+      - name: Run invoice e2e against staging
+        run: ./scripts/e2e.sh https://staging.billing.example.test
+
+  ci-passed:
+    if: always()
+    needs: [lint, unit-tests, e2e]
+    runs-on: ubuntu-latest
+    steps:
+      - name: Require all jobs
+        run: |
+          [ "${{ contains(needs.*.result, 'failure') || contains(needs.*.result, 'cancelled') }}" = "false" ] || {
+            echo "One or more required jobs failed"; exit 1; }

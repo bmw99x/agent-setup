@@ -1,0 +1,22 @@
+version = 1
+revision = 3
+requires-python = ">=3.12"
+
+[[package]]
+name = "billing"
+version = "4.3.0"
+source = { virtual = "." }
+dependencies = [
+    { name = "ledgerkit" },
+]
+
+[package.metadata]
+requires-dist = [{ name = "ledgerkit", specifier = ">=2.2,<3" }]
+
+[[package]]
+name = "ledgerkit"
+version = "2.2.0"
+source = { registry = "../../opt/wheels" }
+wheels = [
+    { path = "ledgerkit-2.2.0-py3-none-any.whl" },
+]

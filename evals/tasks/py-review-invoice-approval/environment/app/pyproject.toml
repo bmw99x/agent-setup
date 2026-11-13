@@ -1,0 +1,23 @@
+[project]
+name = "invoices-service"
+version = "0.1.0"
+requires-python = ">=3.12"
+dependencies = [
+    "fastapi",
+    "sqlalchemy[asyncio]",
+    "pydantic",
+    "requests",
+    "httpx",
+    "asyncpg",
+]
+
+[dependency-groups]
+dev = ["pytest", "pytest-xdist", "pytest-asyncio", "ruff", "ty"]
+
+[tool.ruff]
+line-length = 100
+
+[tool.pytest.ini_options]
+pythonpath = ["."]
+testpaths = ["tests"]
+asyncio_default_fixture_loop_scope = "function"

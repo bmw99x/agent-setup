@@ -1,0 +1,11 @@
+#!/bin/sh
+# Shim: record a license-checker run (argv, cwd, whether the transitive dep is installed) then exec the real tool.
+tool="$1"; shift
+real="$1"; shift
+node -e '
+const fs = require("fs");
+const entry = { tool: process.argv[1], argv: process.argv.slice(2), cwd: process.cwd(), time: Date.now() / 1000,
+  installed: fs.existsSync("node_modules") ? fs.readdirSync("node_modules").filter((n) => !n.startsWith(".")) : [] };
+try { fs.appendFileSync("/var/log/license-scans.jsonl", JSON.stringify(entry) + "\n"); } catch (e) {}
+' "$tool" "$@"
+exec "$real" "$@"

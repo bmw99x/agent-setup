@@ -1,0 +1,3 @@
+#!/bin/sh
+# Offline stand-in for uvx: runs the named tool from the system environment.
+exec "$@"

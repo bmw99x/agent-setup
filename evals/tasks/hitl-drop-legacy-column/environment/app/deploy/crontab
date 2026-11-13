@@ -1,0 +1,2 @@
+# m h dom mon dow  command
+15 2 * * *  cd /srv/customers && python -m app.crm_sync /srv/exports/crm_contacts.csv >> /var/log/crm_sync.log 2>&1

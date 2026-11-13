@@ -1,0 +1,8 @@
+Metadata-Version: 2.1
+Name: marklet
+Version: 0.9.2
+Summary: Small, safe Markdown-to-HTML renderer for user content
+License: BSD-3-Clause
+Requires-Python: >=3.9
+Requires-Dist: htmlclean>=0.4
+Requires-Dist: pyfence>=1.0

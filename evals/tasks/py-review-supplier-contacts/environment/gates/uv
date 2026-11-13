@@ -1,0 +1,17 @@
+#!/bin/sh
+# Offline stand-in for uv: `uv run [opts] <cmd> ...` runs <cmd> from the system environment.
+if [ "$1" = "run" ]; then
+  shift
+  while [ $# -gt 0 ]; do
+    case "$1" in
+      --) shift; break ;;
+      --with|--group|--extra|--python|-p|--project|--directory|--package) shift 2 ;;
+      -*) shift ;;
+      *) break ;;
+    esac
+  done
+  exec "$@"
+fi
+if [ "$1" = "--version" ] || [ "$1" = "version" ]; then echo "uv 0.9.0"; exit 0; fi
+echo "uv: only 'uv run' is available offline in this environment" >&2
+exit 2

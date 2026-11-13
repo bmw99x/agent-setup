@@ -1,0 +1,14 @@
+[build-system]
+requires = ["setuptools>=68"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "tidyhttp"
+version = "2.1.0"
+description = "A small, typed HTTP client."
+requires-python = ">=3.11"
+dependencies = ["certbundle>=1.0"]
+license = {text = "MIT"}
+
+[tool.setuptools]
+packages = ["tidyhttp"]

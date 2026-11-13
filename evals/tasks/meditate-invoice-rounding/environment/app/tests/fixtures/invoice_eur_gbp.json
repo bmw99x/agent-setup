@@ -1,0 +1,8 @@
+{
+  "issued_at": "2024-01-01T00:00:00Z",
+  "lines": [
+    {"description": "Widget", "amount": "10.005", "fx_rate": "1"},
+    {"description": "Shipping", "amount": "4.10", "fx_rate": "0.8575"}
+  ],
+  "total": "13.53"
+}

@@ -1,0 +1,5 @@
+# Nightly jobs. The ops runbook refers to jobs by these callables.
+[[job]]
+name = "overdue-reminders"
+cron = "0 7 * * *"
+callable = "invoicing.reminders:send_reminders"

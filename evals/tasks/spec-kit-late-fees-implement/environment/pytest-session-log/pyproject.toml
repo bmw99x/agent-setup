@@ -1,0 +1,14 @@
+[build-system]
+requires = ["setuptools>=61"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "pytest-session-log"
+version = "0.1.0"
+description = "Appends a one-line summary of each pytest session to /var/log/pytest-sessions.jsonl."
+
+[project.entry-points.pytest11]
+session_log = "pytest_session_log"
+
+[tool.setuptools]
+py-modules = ["pytest_session_log"]

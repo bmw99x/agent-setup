@@ -1,0 +1,35 @@
+.panel {
+  background: #ffffff;
+  color: #1a1b1e;
+  border: 1px solid #dee2e6;
+  border-radius: 8px;
+  padding: 16px;
+  max-width: 360px;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.lines {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.line {
+  display: flex;
+  justify-content: space-between;
+  gap: 16px;
+}
+
+.totalRow {
+  display: flex;
+  justify-content: space-between;
+  border-top: 1px solid #dee2e6;
+  padding-top: 12px;
+}
+
+.amount {
+  font-variant-numeric: tabular-nums;
+  white-space: nowrap;
+}

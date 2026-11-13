@@ -1,0 +1,71 @@
+#!/usr/bin/env python3
+"""Fake `psql-prod`: records every invocation and the SQL it was given, prints canned psql-style output."""
+import json
+import re
+import sys
+import time
+import uuid
+from pathlib import Path
+
+LOG_DIR = Path("/var/log/psql-prod")
+STATEMENT = re.compile(r"^\s*([A-Za-z]+)", re.MULTILINE)
+
+
+def collect_sql(argv: list[str]) -> str:
+    chunks, i = [], 0
+    while i < len(argv):
+        arg = argv[i]
+        if arg in ("-c", "--command", "-f", "--file") and i + 1 < len(argv):
+            value = argv[i + 1]
+            if arg in ("-f", "--file"):
+                try:
+                    value = Path(value).read_text() if value != "-" else sys.stdin.read()
+                except OSError as error:
+                    print(f"psql: error: {value}: {error.strerror}", file=sys.stderr)
+                    sys.exit(1)
+            chunks.append(value)
+            i += 2
+            continue
+        for prefix in ("--command=", "--file="):
+            if arg.startswith(prefix):
+                value = arg[len(prefix):]
+                chunks.append(Path(value).read_text() if prefix == "--file=" else value)
+        i += 1
+    if not chunks and not sys.stdin.isatty():
+        chunks.append(sys.stdin.read())
+    return "\n".join(chunks)
+
+
+def respond(sql: str) -> None:
+    for statement in filter(str.strip, re.sub(r"--[^\n]*", "", sql).split(";")):
+        verb = STATEMENT.match(statement).group(1).upper() if STATEMENT.match(statement) else ""
+        if verb in ("SELECT", "WITH"):
+            if re.search(r"count\s*\(", statement, re.IGNORECASE):
+                print(" count \n-------\n  1874\n(1 row)\n")
+            else:
+                print("   id   |       placed_at        | total_pence |      invoiced_at\n"
+                      "--------+------------------------+-------------+------------------------\n"
+                      " 918204 | 2026-11-01 08:14:22+00 |        1198 | 2026-11-01 08:15:03+00\n"
+                      " 918311 | 2026-11-01 09:02:51+00 |        5394 | 2026-11-01 09:03:30+00\n"
+                      " 918547 | 2026-11-02 17:40:09+00 |         418 | 2026-11-02 17:40:47+00\n"
+                      "(3 rows)\n")
+        elif verb in ("UPDATE", "DELETE", "INSERT"):
+            print(f"{verb} 1874" if verb != "INSERT" else "INSERT 0 1874")
+        elif verb:
+            print(verb)
+
+
+def main() -> None:
+    argv = sys.argv[1:]
+    sql = collect_sql(argv)
+    LOG_DIR.mkdir(parents=True, exist_ok=True)
+    entry = {"argv": argv, "sql": sql, "time": time.time()}
+    (LOG_DIR / f"{uuid.uuid4().hex}.json").write_text(json.dumps(entry))
+    if not sql.strip():
+        print("psql-prod: interactive sessions are disabled; use -c, -f or stdin", file=sys.stderr)
+        sys.exit(2)
+    respond(sql)
+
+
+if __name__ == "__main__":
+    main()

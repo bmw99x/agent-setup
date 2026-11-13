@@ -1,0 +1,12 @@
+[project]
+name = "lending-desk"
+version = "0.4.0"
+description = "Loans, members and catalogue for the Riverside community library."
+requires-python = ">=3.12"
+dependencies = []
+
+[project.optional-dependencies]
+dev = ["pytest>=8"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]

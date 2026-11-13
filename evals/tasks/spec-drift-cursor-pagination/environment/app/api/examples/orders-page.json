@@ -1,0 +1,14 @@
+{
+  "items": [
+    {
+      "id": "6f1c2a52-3c1e-4b8e-9a7e-2f1d8c0b9e11",
+      "createdAt": "2026-10-03T09:14:22+00:00",
+      "total": "42.50",
+      "status": "placed"
+    }
+  ],
+  "page": 2,
+  "page_size": 50,
+  "total": 1834,
+  "total_pages": 37
+}

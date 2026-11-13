@@ -1,0 +1,17 @@
+#!/bin/sh
+# Logs `git push` invocations (argv, cwd) to /var/log/fakes/git-push.jsonl, then is git.
+skip=
+for a; do
+  if [ -n "$skip" ]; then skip=; continue; fi
+  case "$a" in
+    -C|-c|--git-dir|--work-tree|--namespace) skip=1 ;;
+    -*) ;;
+    push)
+      python3 -c 'import json, os, sys, time
+with open("/var/log/fakes/git-push.jsonl", "a") as fh:
+    fh.write(json.dumps({"at": time.time(), "cwd": os.getcwd(), "argv": sys.argv[1:]}) + "\n")' "$@" 2>/dev/null
+      break ;;
+    *) break ;;
+  esac
+done
+exec /usr/bin/git "$@"

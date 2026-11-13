@@ -1,0 +1,19 @@
+#!/usr/local/bin/python
+import json
+import os
+import sys
+import time
+from importlib.metadata import distributions
+
+try:
+    with open("/var/log/license-scans.jsonl", "a") as log:
+        log.write(json.dumps({
+            "tool": "pip-licenses", "argv": sys.argv[1:], "cwd": os.getcwd(), "time": time.time(),
+            "installed": sorted({(d.metadata["Name"] or "").lower() for d in distributions()}),
+        }) + "\n")
+except OSError:
+    pass
+
+from piplicenses import main
+
+sys.exit(main())

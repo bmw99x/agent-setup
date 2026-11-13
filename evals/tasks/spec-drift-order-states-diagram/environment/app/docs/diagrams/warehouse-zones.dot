@@ -1,0 +1,6 @@
+digraph warehouse_zones {
+    rankdir=LR;
+    node [shape=box, fontname="Helvetica"];
+    A [label="Zone A\nfast movers"]; B [label="Zone B"]; C [label="Zone C\nslow movers"]; PACK [label="Packing benches"];
+    A -> PACK; B -> PACK; C -> PACK;
+}

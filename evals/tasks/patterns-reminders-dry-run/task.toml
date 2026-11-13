@@ -1,0 +1,22 @@
+schema_version = "1.3"
+
+[metadata]
+skill = "design-patterns-pragmatic"
+author_name = "agent-setup"
+difficulty = "medium"
+category = "programming"
+tags = ["python","design-patterns","dry-run"]
+
+[verifier]
+timeout_sec = 120.0
+
+[agent]
+timeout_sec = 600.0
+
+[environment]
+build_timeout_sec = 600.0
+network_mode = "no-network"
+cpus = 2
+memory_mb = 2048
+storage_mb = 4096
+gpus = 0

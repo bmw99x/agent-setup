@@ -1,0 +1,165 @@
+<title>Payout Request Path</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;600&family=IBM+Plex+Sans:wght@400;500;600&display=swap">
+<style>
+/* Layout: sticky header with chapter tabs; one panel per view; diagrams centred at reading width, explorer and walkthrough full width */
+:root {
+  --bg: #f6f7f9; --panel: #ffffff; --line: #dde1e7; --ink: #18202b; --muted: #5d6877;
+  --accent: #2b55c9; --accent-soft: #e6ecfb; --axis: #8a93a1; --grid: #d3d8df; --tint: #eceff3;
+  --caller: #b5650d; --caller-soft: #fbeedd; --callee: #0f7a6c; --callee-soft: #dcf2ee;
+  --sans: "IBM Plex Sans", system-ui, -apple-system, "Segoe UI", sans-serif;
+  --mono: "IBM Plex Mono", ui-monospace, SFMono-Regular, Menlo, monospace;
+}
+@media (prefers-color-scheme: dark) { :root:not([data-theme="light"]) {
+  --bg: #11151b; --panel: #171c24; --line: #2a313c; --ink: #e5e9ef; --muted: #98a2b1;
+  --accent: #7c9cf2; --accent-soft: #1f2a45; --axis: #6f7886; --grid: #2f3742; --tint: #1d232c;
+  --caller: #e8a457; --caller-soft: #3a2a17; --callee: #4cc5b2; --callee-soft: #133430; color-scheme: dark } }
+:root[data-theme="dark"] {
+  --bg: #11151b; --panel: #171c24; --line: #2a313c; --ink: #e5e9ef; --muted: #98a2b1;
+  --accent: #7c9cf2; --accent-soft: #1f2a45; --axis: #6f7886; --grid: #2f3742; --tint: #1d232c;
+  --caller: #e8a457; --caller-soft: #3a2a17; --callee: #4cc5b2; --callee-soft: #133430; color-scheme: dark }
+* { box-sizing: border-box }
+body { background: var(--bg); color: var(--ink); font-family: var(--sans); font-size: 14px; line-height: 1.45;
+  padding-left: max(16px, env(safe-area-inset-left, 0px)); padding-right: max(16px, env(safe-area-inset-right, 0px)); padding-block: 0 40px }
+body::before { content: ""; position: fixed; inset: 0 0 auto; height: env(safe-area-inset-top, 0px); z-index: 10; background: var(--bg) }
+code, .mono { font-family: var(--mono); font-size: 12.5px }
+a { color: var(--accent) }
+.top { position: sticky; top: env(safe-area-inset-top, 0px); z-index: 7; background: var(--bg); border-bottom: 1px solid var(--line); padding-block: 14px 0 }
+.title-row { display: flex; flex-wrap: wrap; align-items: baseline; gap: 4px 16px }
+h1 { font-size: 19px; font-weight: 600; margin: 0; text-wrap: balance }
+.sub { color: var(--muted); font-size: 12.5px }
+nav { display: flex; gap: 2px; overflow-x: auto; margin-top: 10px; scrollbar-width: none }
+nav a { flex: none; padding: 8px 12px; color: var(--muted); text-decoration: none; border-bottom: 2px solid transparent; font-weight: 500 }
+nav a:hover { color: var(--ink) }
+nav a[aria-current="page"] { color: var(--ink); border-color: var(--accent) }
+nav a:focus-visible, button:focus-visible, input:focus-visible { outline: 2px solid var(--accent); outline-offset: 1px }
+.panel { padding-top: 20px }
+.lead { max-width: 72ch; margin: 0 0 14px; text-wrap: pretty }
+.figure { background: var(--panel); border: 1px solid var(--line); border-radius: 8px; padding: 12px; max-width: 900px; overflow-x: auto }
+.figure svg { display: block; width: 100%; min-width: 640px; height: auto; font-family: var(--sans) }
+.notes { max-width: 72ch; color: var(--muted); margin: 12px 0 0; padding-left: 18px }
+.notes li + li { margin-top: 4px }
+.contents { display: flex; flex-wrap: wrap; gap: 6px; margin: 0 0 8px }
+.contents button { font: inherit; font-size: 12.5px; padding: 4px 10px; border: 1px solid var(--line); border-radius: 999px; background: var(--panel); color: var(--ink); cursor: pointer }
+.contents button:hover { border-color: var(--accent); color: var(--accent) }
+.fig-title { font-size: 15px; font-weight: 600; margin: 28px 0 4px; scroll-margin-top: 110px }
+.fig-lead { max-width: 72ch; margin: 0 0 10px; color: var(--muted) }
+/* dependency explorer */
+.dep-bar { display: flex; flex-wrap: wrap; gap: 10px 20px; align-items: center; margin-bottom: 14px }
+.search { position: relative; flex: 1 1 280px; max-width: 520px; min-width: 0 }
+.search input { width: 100%; font-family: var(--mono); font-size: 13px; padding: 8px 10px; border: 1px solid var(--line); border-radius: 6px; background: var(--panel); color: var(--ink) }
+#results { position: absolute; left: 0; right: 0; top: 100%; margin-top: 4px; background: var(--panel); border: 1px solid var(--line); border-radius: 6px; max-height: 340px; overflow: auto; z-index: 6 }
+#results button { display: block; width: 100%; text-align: left; border: 0; background: none; padding: 6px 10px; color: var(--ink); font: inherit; cursor: pointer }
+#results button:hover { background: var(--accent-soft) }
+.opts { display: flex; gap: 14px; flex-wrap: wrap; color: var(--muted); font-size: 12.5px }
+.opts label { display: inline-flex; gap: 6px; align-items: center; cursor: pointer }
+.layout { display: grid; grid-template-columns: 260px minmax(0, 1fr); gap: 20px }
+@media (max-width: 860px) { .layout { grid-template-columns: minmax(0, 1fr) } }
+aside { display: flex; flex-direction: column; gap: 16px; min-width: 0 }
+h2 { font-size: 11.5px; font-weight: 600; text-transform: uppercase; letter-spacing: .06em; color: var(--muted); margin: 0 0 6px }
+.list { display: flex; flex-direction: column }
+.list button { display: flex; justify-content: space-between; gap: 8px; border: 0; background: none; color: var(--ink); text-align: left; padding: 4px 6px; border-radius: 4px; cursor: pointer; font-family: var(--mono); font-size: 12px; min-width: 0 }
+.list button span:first-child { overflow: hidden; text-overflow: ellipsis; white-space: nowrap }
+.list button:hover { background: var(--accent-soft) }
+.list .n { color: var(--muted); font-variant-numeric: tabular-nums; flex: none }
+.dep-main { display: flex; flex-direction: column; gap: 18px; min-width: 0 }
+.card { background: var(--panel); border: 1px solid var(--line); border-radius: 8px; padding: 14px 16px; min-width: 0 }
+.sel-name { font-family: var(--mono); font-size: 16px; font-weight: 600; word-break: break-all }
+.meta { display: flex; flex-wrap: wrap; gap: 6px 14px; color: var(--muted); font-size: 12.5px; margin-top: 4px }
+.doc { margin: 8px 0 0; max-width: 72ch }
+.chip { display: inline-block; font-size: 11px; font-weight: 600; letter-spacing: .04em; text-transform: uppercase; padding: 1px 6px; border-radius: 4px; background: var(--accent-soft); color: var(--accent) }
+.stats { display: grid; grid-template-columns: repeat(auto-fit, minmax(140px, 1fr)); gap: 10px; margin-top: 12px }
+.stat { border-left: 3px solid var(--line); padding-left: 10px }
+.stat b { display: block; font-size: 20px; font-variant-numeric: tabular-nums }
+.stat.caller { border-color: var(--caller) } .stat.callee { border-color: var(--callee) } .stat.entry { border-color: var(--accent) }
+.stat span { color: var(--muted); font-size: 12px }
+.graph-wrap { overflow-x: auto; background: var(--panel); border: 1px solid var(--line); border-radius: 8px }
+#graph text { font-family: var(--mono) }
+.legend { display: flex; flex-wrap: wrap; gap: 14px; color: var(--muted); font-size: 12px; margin-top: 6px }
+.legend i { display: inline-block; width: 18px; height: 0; border-top: 2px solid; vertical-align: middle; margin-right: 4px }
+.cols { display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 18px }
+table { width: 100%; border-collapse: collapse; font-size: 12.5px }
+th { text-align: left; font-weight: 600; color: var(--muted); font-size: 11.5px; padding: 4px 6px; border-bottom: 1px solid var(--line) }
+td { padding: 3px 6px; border-bottom: 1px solid var(--line); vertical-align: top }
+td.d { width: 1%; font-variant-numeric: tabular-nums; color: var(--muted) }
+td button { border: 0; background: none; color: var(--ink); font-family: var(--mono); font-size: 12px; padding: 0; cursor: pointer; text-align: left; word-break: break-all }
+td button:hover { color: var(--accent); text-decoration: underline }
+.tbl { max-height: 420px; overflow: auto }
+.empty { color: var(--muted); font-style: italic }
+/* walkthrough */
+.frame-wrap { border: 1px solid var(--line); border-radius: 8px; overflow: hidden; background: var(--panel) }
+#walk-frame { display: block; width: 100%; height: min(980px, 82vh); min-height: 560px; border: 0 }
+</style>
+
+<div class="top">
+  <div class="title-row">
+    <h1>POST /payouts request path</h1>
+    <span class="sub">payouts <code>feature/payout-batching</code> (!43, stacked on !42) @ @SHA@</span>
+  </div>
+  <nav aria-label="Views"><a href="#sequence">Sequence</a></nav>
+</div>
+
+<section class="panel" id="p-sequence">
+  <p class="lead">The reservation commits first; the bank transfer happens later in the batch worker.</p>
+  <div class="figure"><svg viewBox="0 0 760 330" role="img" aria-label="The reservation commits before the payout id is queued">
+<defs><marker id="x-arrow" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse"><path d="M0 0L10 5L0 10z" fill="var(--axis)"/></marker><marker id="a-arrow" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse"><path d="M0 0L10 5L0 10z" fill="var(--accent)"/></marker></defs>
+<text x="20" y="30" font-size="15" font-weight="600" fill="var(--ink)">The reservation is made durable before the payout id is queued</text>
+<line x1="72" y1="90" x2="72" y2="310" stroke="var(--grid)" stroke-dasharray="4 4"/>
+<rect x="26" y="50" width="92" height="40" rx="6" fill="var(--tint)" stroke="var(--axis)"/>
+<text x="72" y="75" text-anchor="middle" font-size="11.5" font-weight="600" fill="var(--ink)">Dashboard</text>
+<line x1="172" y1="90" x2="172" y2="310" stroke="var(--grid)" stroke-dasharray="4 4"/>
+<rect x="126" y="50" width="92" height="40" rx="6" fill="var(--tint)" stroke="var(--axis)"/>
+<text x="172" y="75" text-anchor="middle" font-size="11.5" font-weight="600" fill="var(--ink)">create_payout</text>
+<line x1="272" y1="90" x2="272" y2="310" stroke="var(--grid)" stroke-dasharray="4 4"/>
+<rect x="226" y="50" width="92" height="40" rx="6" fill="var(--tint)" stroke="var(--axis)"/>
+<text x="272" y="75" text-anchor="middle" font-size="11.5" font-weight="600" fill="var(--ink)">PayoutService</text>
+<line x1="372" y1="90" x2="372" y2="310" stroke="var(--grid)" stroke-dasharray="4 4"/>
+<rect x="326" y="50" width="92" height="40" rx="6" fill="var(--tint)" stroke="var(--axis)"/>
+<text x="372" y="75" text-anchor="middle" font-size="11.5" font-weight="600" fill="var(--ink)">LedgerRepo</text>
+<line x1="472" y1="90" x2="472" y2="310" stroke="var(--grid)" stroke-dasharray="4 4"/>
+<rect x="426" y="50" width="92" height="40" rx="6" fill="var(--tint)" stroke="var(--axis)"/>
+<text x="472" y="75" text-anchor="middle" font-size="11.5" font-weight="600" fill="var(--ink)">UnitOfWork</text>
+<line x1="572" y1="90" x2="572" y2="310" stroke="var(--grid)" stroke-dasharray="4 4"/>
+<rect x="526" y="50" width="92" height="40" rx="6" fill="var(--tint)" stroke="var(--axis)"/>
+<text x="572" y="75" text-anchor="middle" font-size="11.5" font-weight="600" fill="var(--ink)">BatchQueue</text>
+<line x1="72" y1="130" x2="172" y2="130" stroke="var(--axis)" stroke-width="1.2" marker-end="url(#x-arrow)"/>
+<text x="80" y="124" font-size="11.5" fill="var(--ink)">POST /payouts</text>
+<line x1="172" y1="158" x2="272" y2="158" stroke="var(--axis)" stroke-width="1.2" marker-end="url(#x-arrow)"/>
+<text x="180" y="152" font-size="11.5" fill="var(--ink)">request(account, amount)</text>
+<line x1="272" y1="186" x2="302" y2="186" stroke="var(--axis)" stroke-width="1.2" marker-end="url(#x-arrow)"/>
+<text x="280" y="180" font-size="11.5" fill="var(--ink)">amount ≤ MAX_PAYOUT_PENCE (500_000)</text>
+<line x1="272" y1="214" x2="372" y2="214" stroke="var(--axis)" stroke-width="1.2" marker-end="url(#x-arrow)"/>
+<text x="280" y="208" font-size="11.5" fill="var(--ink)">reserve(account, amount)</text>
+<line x1="272" y1="242" x2="472" y2="242" stroke="var(--accent)" stroke-width="2" marker-end="url(#a-arrow)"/>
+<text x="280" y="236" font-size="11.5" fill="var(--ink)">commit()</text>
+<line x1="272" y1="270" x2="572" y2="270" stroke="var(--axis)" stroke-width="1.2" marker-end="url(#x-arrow)"/>
+<text x="280" y="264" font-size="11.5" fill="var(--ink)">enqueue(payout.id)</text>
+<line x1="172" y1="298" x2="72" y2="298" stroke="var(--axis)" stroke-width="1.2" marker-end="url(#x-arrow)"/>
+<text x="80" y="292" font-size="11.5" fill="var(--ink)">201 {id, status: reserved}</text>
+<text x="20" y="334" font-size="11.5" fill="var(--muted)">Later, worker.flush_batch drains the queue and calls BankClient.send_transfer.</text>
+</svg></div>
+  <ul class="notes"><li>Drawn from !43, which the design doc names as the version that ships.</li><li>Doc says £10,000 limit; code has MAX_PAYOUT_PENCE = 500_000 (£5,000).</li></ul>
+</section>
+
+<script>
+const VIEWS = ["sequence"];
+let walkLoaded = false;
+function show() {
+  const name = VIEWS.includes(location.hash.slice(1)) ? location.hash.slice(1) : VIEWS[0];
+  for (const v of VIEWS) document.getElementById("p-" + v).hidden = v !== name;
+  document.querySelectorAll("nav a").forEach(a => { if (a.getAttribute("href") === "#" + name) a.setAttribute("aria-current", "page"); else a.removeAttribute("aria-current"); });
+  const src = document.getElementById("archify-src");
+  if (name === "walkthrough" && src && !walkLoaded) {
+    const bytes = Uint8Array.from(atob(src.textContent.trim()), c => c.charCodeAt(0));
+    document.getElementById("walk-frame").srcdoc = new TextDecoder().decode(bytes);
+    walkLoaded = true;
+  }
+}
+window.addEventListener("hashchange", show);
+document.addEventListener("click", e => {
+  const b = e.target.closest("[data-goto]");
+  if (b) document.getElementById(b.dataset.goto).scrollIntoView({ behavior: matchMedia("(prefers-reduced-motion: reduce)").matches ? "auto" : "smooth", block: "start" });
+});
+show();
+</script>

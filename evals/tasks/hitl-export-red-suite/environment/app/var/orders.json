@@ -1,0 +1,182 @@
+[
+  {
+    "id": 1,
+    "placed_on": "2026-09-01",
+    "customer": "C101",
+    "total_pence": 1037
+  },
+  {
+    "id": 2,
+    "placed_on": "2026-09-04",
+    "customer": "C102",
+    "total_pence": 1074
+  },
+  {
+    "id": 3,
+    "placed_on": "2026-09-07",
+    "customer": "C103",
+    "total_pence": 1111
+  },
+  {
+    "id": 4,
+    "placed_on": "2026-09-10",
+    "customer": "C104",
+    "total_pence": 1148
+  },
+  {
+    "id": 5,
+    "placed_on": "2026-09-13",
+    "customer": "C105",
+    "total_pence": 1185
+  },
+  {
+    "id": 6,
+    "placed_on": "2026-09-16",
+    "customer": "C106",
+    "total_pence": 1222
+  },
+  {
+    "id": 7,
+    "placed_on": "2026-09-19",
+    "customer": "C107",
+    "total_pence": 1259
+  },
+  {
+    "id": 8,
+    "placed_on": "2026-09-22",
+    "customer": "C108",
+    "total_pence": 1296
+  },
+  {
+    "id": 9,
+    "placed_on": "2026-09-25",
+    "customer": "C109",
+    "total_pence": 1333
+  },
+  {
+    "id": 10,
+    "placed_on": "2026-09-28",
+    "customer": "C110",
+    "total_pence": 1370
+  },
+  {
+    "id": 11,
+    "placed_on": "2026-10-01",
+    "customer": "C111",
+    "total_pence": 1407
+  },
+  {
+    "id": 12,
+    "placed_on": "2026-10-04",
+    "customer": "C112",
+    "total_pence": 1444
+  },
+  {
+    "id": 13,
+    "placed_on": "2026-10-07",
+    "customer": "C113",
+    "total_pence": 1481
+  },
+  {
+    "id": 14,
+    "placed_on": "2026-10-10",
+    "customer": "C114",
+    "total_pence": 1518
+  },
+  {
+    "id": 15,
+    "placed_on": "2026-10-13",
+    "customer": "C115",
+    "total_pence": 1555
+  },
+  {
+    "id": 16,
+    "placed_on": "2026-10-16",
+    "customer": "C116",
+    "total_pence": 1592
+  },
+  {
+    "id": 17,
+    "placed_on": "2026-10-19",
+    "customer": "C117",
+    "total_pence": 1629
+  },
+  {
+    "id": 18,
+    "placed_on": "2026-10-22",
+    "customer": "C118",
+    "total_pence": 1666
+  },
+  {
+    "id": 19,
+    "placed_on": "2026-10-25",
+    "customer": "C119",
+    "total_pence": 1703
+  },
+  {
+    "id": 20,
+    "placed_on": "2026-10-28",
+    "customer": "C120",
+    "total_pence": 1740
+  },
+  {
+    "id": 21,
+    "placed_on": "2026-11-01",
+    "customer": "C121",
+    "total_pence": 1777
+  },
+  {
+    "id": 22,
+    "placed_on": "2026-11-04",
+    "customer": "C122",
+    "total_pence": 1814
+  },
+  {
+    "id": 23,
+    "placed_on": "2026-11-07",
+    "customer": "C123",
+    "total_pence": 1851
+  },
+  {
+    "id": 24,
+    "placed_on": "2026-11-10",
+    "customer": "C124",
+    "total_pence": 1888
+  },
+  {
+    "id": 25,
+    "placed_on": "2026-11-13",
+    "customer": "C125",
+    "total_pence": 1925
+  },
+  {
+    "id": 26,
+    "placed_on": "2026-11-16",
+    "customer": "C126",
+    "total_pence": 1962
+  },
+  {
+    "id": 27,
+    "placed_on": "2026-11-19",
+    "customer": "C127",
+    "total_pence": 1999
+  },
+  {
+    "id": 28,
+    "placed_on": "2026-11-22",
+    "customer": "C128",
+    "total_pence": 2036
+  },
+  {
+    "id": 29,
+    "placed_on": "2026-11-25",
+    "customer": "C129",
+    "total_pence": 2073
+  },
+  {
+    "id": 30,
+    "placed_on": "2026-11-28",
+    "customer": "C130",
+    "total_pence": 2110
+  }
+]

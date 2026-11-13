@@ -1,0 +1,1987 @@
+{
+ "api": {
+  "args": "<endpoint>",
+  "desc": "Make an authenticated API request",
+  "flags": {
+   "method": {
+    "short": "X",
+    "value": true,
+    "multi": false,
+    "help": "The HTTP method for the request",
+    "default": "GET"
+   },
+   "data": {
+    "short": "d",
+    "value": true,
+    "multi": false,
+    "help": "Inline JSON body for the request (like curl -d)",
+    "default": null
+   },
+   "field": {
+    "short": "F",
+    "value": true,
+    "multi": true,
+    "help": "Add a typed parameter (key=value, key[sub]=value, key[]=value)",
+    "default": null
+   },
+   "raw-field": {
+    "short": "f",
+    "value": true,
+    "multi": true,
+    "help": "Add a string parameter without JSON parsing",
+    "default": null
+   },
+   "header": {
+    "short": "H",
+    "value": true,
+    "multi": true,
+    "help": "Add a HTTP request header in key:value format",
+    "default": null
+   },
+   "input": {
+    "short": null,
+    "value": true,
+    "multi": false,
+    "help": "The file to use as body for the HTTP request (use \"-\" to read from standard input)",
+    "default": null
+   },
+   "silent": {
+    "short": null,
+    "value": false,
+    "multi": false,
+    "help": "Do not print the response body",
+    "default": null
+   },
+   "verbose": {
+    "short": null,
+    "value": false,
+    "multi": false,
+    "help": "Include full HTTP request and response in the output",
+    "default": null
+   },
+   "dry-run": {
+    "short": "n",
+    "value": false,
+    "multi": false,
+    "help": "Show the resolved request without sending it",
+    "default": null
+   }
+  }
+ },
+ "auth login": {
+  "args": "",
+  "desc": "Authenticate with Sentry",
+  "flags": {
+   "token": {
+    "short": null,
+    "value": true,
+    "multi": false,
+    "help": "Authenticate using an API token instead of OAuth",
+    "default": null
+   },
+   "timeout": {
+    "short": null,
+    "value": true,
+    "multi": false,
+    "help": "Timeout for OAuth flow in seconds (default: 900)",
+    "default": "900"
+   },
+   "force": {
+    "short": null,
+    "value": false,
+    "multi": false,
+    "help": "Re-authenticate without prompting",
+    "default": null
+   },
+   "url": {
+    "short": null,
+    "value": true,
+    "multi": false,
+    "help": "Sentry instance URL to authenticate against (e.g. https://sentry.example.com). Required for self-hosted; defaults to SaaS (https://sentry.io).",
+    "default": null
+   }
+  }
+ },
+ "auth logout": {
+  "args": "",
+  "desc": "Log out of Sentry",
+  "flags": {}
+ },
+ "auth refresh": {
+  "args": "",
+  "desc": "Refresh your authentication token",
+  "flags": {
+   "force": {
+    "short": null,
+    "value": false,
+    "multi": false,
+    "help": "Force refresh even if token is still valid",
+    "default": null
+   }
+  }
+ },
+ "auth status": {
+  "args": "",
+  "desc": "View authentication status",
+  "flags": {
+   "show-token": {
+    "short": null,
+    "value": false,
+    "multi": false,
+    "help": "Show the stored token (masked by default)",
+    "default": null
+   },
+   "fresh": {
+    "short": "f",
+    "value": false,
+    "multi": false,
+    "help": "Bypass cache, re-detect projects, and fetch fresh data",
+    "default": null
+   }
+  }
+ },
+ "auth token": {
+  "args": "",
+  "desc": "Print the stored authentication token",
+  "flags": {}
+ },
+ "auth whoami": {
+  "args": "",
+  "desc": "Show the currently authenticated identity",
+  "flags": {
+   "fresh": {
+    "short": "f",
+    "value": false,
+    "multi": false,
+    "help": "Bypass cache, re-detect projects, and fetch fresh data",
+    "default": null
+   }
+  }
+ },
+ "cli defaults": {
+  "args": "<key value...>",
+  "desc": "View and manage default settings",
+  "flags": {
+   "clear": {
+    "short": null,
+    "value": false,
+    "multi": false,
+    "help": "Clear the specified default, or all defaults if no key is given",
+    "default": null
+   },
+   "yes": {
+    "short": "y",
+    "value": false,
+    "multi": false,
+    "help": "Skip confirmation prompt",
+    "default": null
+   },
+   "force": {
+    "short": "f",
+    "value": false,
+    "multi": false,
+    "help": "Force the operation without confirmation",
+    "default": null
+   }
+  }
+ },
+ "cli feedback": {
+  "args": "<message...>",
+  "desc": "Send feedback about the CLI",
+  "flags": {}
+ },
+ "cli fix": {
+  "args": "",
+  "desc": "Diagnose and repair CLI database issues",
+  "flags": {
+   "dry-run": {
+    "short": null,
+    "value": false,
+    "multi": false,
+    "help": "Show what would be fixed without making changes",
+    "default": null
+   }
+  }
+ },
+ "cli setup": {
+  "args": "",
+  "desc": "Configure shell integration",
+  "flags": {
+   "install": {
+    "short": null,
+    "value": false,
+    "multi": false,
+    "help": "Install the binary from a temp location to the system path",
+    "default": null
+   },
+   "method": {
+    "short": null,
+    "value": true,
+    "multi": false,
+    "help": "Installation method (curl, npm, pnpm, bun, yarn)",
+    "default": null
+   },
+   "channel": {
+    "short": null,
+    "value": true,
+    "multi": false,
+    "help": "Release channel to persist (stable or nightly)",
+    "default": null
+   },
+   "no-modify-path": {
+    "short": null,
+    "value": false,
+    "multi": false,
+    "help": "Skip PATH modification",
+    "default": null
+   },
+   "no-completions": {
+    "short": null,
+    "value": false,
+    "multi": false,
+    "help": "Skip shell completion installation",
+    "default": null
+   },
+   "no-agent-skills": {
+    "short": null,
+    "value": false,
+    "multi": false,
+    "help": "Skip agent skill installation for AI coding assistants",
+    "default": null
+   },
+   "quiet": {
+    "short": null,
+    "value": false,
+    "multi": false,
+    "help": "Suppress output (for scripted usage)",
+    "default": null
+   }
+  }
+ },
+ "cli upgrade": {
+  "args": "<version>",
+  "desc": "Update the Sentry CLI to the latest version",
+  "flags": {
+   "check": {
+    "short": null,
+    "value": false,
+    "multi": false,
+    "help": "Check for updates without installing",
+    "default": null
+   },
+   "force": {
+    "short": null,
+    "value": false,
+    "multi": false,
+    "help": "Force upgrade even if already on the latest version",
+    "default": null
+   },
+   "offline": {
+    "short": null,
+    "value": false,
+    "multi": false,
+    "help": "Upgrade using only cached version info and patches (no network)",
+    "default": null
+   },
+   "method": {
+    "short": null,
+    "value": true,
+    "multi": false,
+    "help": "Installation method to use (curl, brew, npm, pnpm, bun, yarn)",
+    "default": null
+   }
+  }
+ },
+ "dashboard list": {
+  "args": "<org/title-filter...>",
+  "desc": "List dashboards",
+  "flags": {
+   "web": {
+    "short": "w",
+    "value": false,
+    "multi": false,
+    "help": "Open in browser",
+    "default": null
+   },
+   "limit": {
+    "short": "n",
+    "value": true,
+    "multi": false,
+    "help": "Maximum number of dashboards to list",
+    "default": "25"
+   },
+   "fresh": {
+    "short": "f",
+    "value": false,
+    "multi": false,
+    "help": "Bypass cache, re-detect projects, and fetch fresh data",
+    "default": null
+   },
+   "cursor": {
+    "short": "c",
+    "value": true,
+    "multi": false,
+    "help": "Navigate pages: \"next\", \"prev\", \"first\" (or raw cursor string)",
+    "default": null
+   }
+  }
+ },
+ "dashboard view": {
+  "args": "<org/project/dashboard...>",
+  "desc": "View a dashboard",
+  "flags": {
+   "web": {
+    "short": "w",
+    "value": false,
+    "multi": false,
+    "help": "Open in browser",
+    "default": null
+   },
+   "fresh": {
+    "short": "f",
+    "value": false,
+    "multi": false,
+    "help": "Bypass cache, re-detect projects, and fetch fresh data",
+    "default": null
+   },
+   "refresh": {
+    "short": "r",
+    "value": true,
+    "multi": false,
+    "help": "Auto-refresh interval in seconds (default: 60, min: 10)",
+    "default": null
+   },
+   "period": {
+    "short": "t",
+    "value": true,
+    "multi": false,
+    "help": "Time range: \"7d\", \"2026-04-01..2026-05-01\", \">=2026-04-01\"",
+    "default": null
+   }
+  }
+ },
+ "dashboard create": {
+  "args": "<org/project/title...>",
+  "desc": "Create a dashboard",
+  "flags": {}
+ },
+ "dashboard widget add": {
+  "args": "<org/project/dashboard/title...>",
+  "desc": "Add a widget to a dashboard",
+  "flags": {
+   "display": {
+    "short": "d",
+    "value": true,
+    "multi": false,
+    "help": "Display type (big_number, line, area, bar, table, stacked_area, top_n, text, categorical_bar, details, wheel, rage_and_dead_clicks, server_tree, agents_traces_table)",
+    "default": null
+   },
+   "dataset": {
+    "short": null,
+    "value": true,
+    "multi": false,
+    "help": "Widget dataset (default: spans). Accepts canonical names and API synonyms: spans, error-events/errors, transaction-like/transactions, tracemetrics/metrics, logs, issue, discover",
+    "default": null
+   },
+   "query": {
+    "short": "q",
+    "value": true,
+    "multi": true,
+    "help": "Aggregate expression (e.g. count, p95:span.duration)",
+    "default": null
+   },
+   "where": {
+    "short": "w",
+    "value": true,
+    "multi": false,
+    "help": "Search conditions filter (e.g. is:unresolved)",
+    "default": null
+   },
+   "group-by": {
+    "short": "g",
+    "value": true,
+    "multi": true,
+    "help": "Group-by column (repeatable)",
+    "default": null
+   },
+   "sort": {
+    "short": "s",
+    "value": true,
+    "multi": false,
+    "help": "Order by (prefix - for desc, e.g. -count)",
+    "default": null
+   },
+   "limit": {
+    "short": "n",
+    "value": true,
+    "multi": false,
+    "help": "Result limit",
+    "default": null
+   },
+   "col": {
+    "short": "x",
+    "value": true,
+    "multi": false,
+    "help": "Grid column position (0-based, 0\u20135)",
+    "default": null
+   },
+   "row": {
+    "short": "y",
+    "value": true,
+    "multi": false,
+    "help": "Grid row position (0-based)",
+    "default": null
+   },
+   "width": {
+    "short": null,
+    "value": true,
+    "multi": false,
+    "help": "Widget width in grid columns (1\u20136)",
+    "default": null
+   },
+   "height": {
+    "short": null,
+    "value": true,
+    "multi": false,
+    "help": "Widget height in grid rows (min 1)",
+    "default": null
+   },
+   "layout": {
+    "short": "l",
+    "value": true,
+    "multi": false,
+    "help": "Layout mode: sequential (append in order) or dense (fill gaps)",
+    "default": "sequential"
+   }
+  }
+ },
+ "dashboard widget edit": {
+  "args": "<org/project/dashboard...>",
+  "desc": "Edit a widget in a dashboard",
+  "flags": {
+   "index": {
+    "short": "i",
+    "value": true,
+    "multi": false,
+    "help": "Widget index (0-based)",
+    "default": null
+   },
+   "title": {
+    "short": "t",
+    "value": true,
+    "multi": false,
+    "help": "Widget title to match",
+    "default": null
+   },
+   "new-title": {
+    "short": null,
+    "value": true,
+    "multi": false,
+    "help": "New widget title",
+    "default": null
+   },
+   "display": {
+    "short": "d",
+    "value": true,
+    "multi": false,
+    "help": "Display type (big_number, line, area, bar, table, stacked_area, top_n, text, categorical_bar, details, wheel, rage_and_dead_clicks, server_tree, agents_traces_table)",
+    "default": null
+   },
+   "dataset": {
+    "short": null,
+    "value": true,
+    "multi": false,
+    "help": "Widget dataset (default: spans). Accepts canonical names and API synonyms: spans, error-events/errors, transaction-like/transactions, tracemetrics/metrics, logs, issue, discover",
+    "default": null
+   },
+   "query": {
+    "short": "q",
+    "value": true,
+    "multi": true,
+    "help": "Aggregate expression (e.g. count, p95:span.duration)",
+    "default": null
+   },
+   "where": {
+    "short": "w",
+    "value": true,
+    "multi": false,
+    "help": "Search conditions filter (e.g. is:unresolved)",
+    "default": null
+   },
+   "group-by": {
+    "short": "g",
+    "value": true,
+    "multi": true,
+    "help": "Group-by column (repeatable)",
+    "default": null
+   },
+   "sort": {
+    "short": "s",
+    "value": true,
+    "multi": false,
+    "help": "Order by (prefix - for desc, e.g. -count)",
+    "default": null
+   },
+   "limit": {
+    "short": "n",
+    "value": true,
+    "multi": false,
+    "help": "Result limit",
+    "default": null
+   },
+   "col": {
+    "short": "x",
+    "value": true,
+    "multi": false,
+    "help": "Grid column position (0-based, 0\u20135)",
+    "default": null
+   },
+   "row": {
+    "short": "y",
+    "value": true,
+    "multi": false,
+    "help": "Grid row position (0-based)",
+    "default": null
+   },
+   "width": {
+    "short": null,
+    "value": true,
+    "multi": false,
+    "help": "Widget width in grid columns (1\u20136)",
+    "default": null
+   },
+   "height": {
+    "short": null,
+    "value": true,
+    "multi": false,
+    "help": "Widget height in grid rows (min 1)",
+    "default": null
+   }
+  }
+ },
+ "dashboard widget delete": {
+  "args": "<org/project/dashboard...>",
+  "desc": "Delete a widget from a dashboard",
+  "flags": {
+   "index": {
+    "short": "i",
+    "value": true,
+    "multi": false,
+    "help": "Widget index (0-based)",
+    "default": null
+   },
+   "title": {
+    "short": "t",
+    "value": true,
+    "multi": false,
+    "help": "Widget title to match",
+    "default": null
+   },
+   "yes": {
+    "short": "y",
+    "value": false,
+    "multi": false,
+    "help": "Skip confirmation prompt",
+    "default": null
+   },
+   "force": {
+    "short": "f",
+    "value": false,
+    "multi": false,
+    "help": "Force the operation without confirmation",
+    "default": null
+   },
+   "dry-run": {
+    "short": "n",
+    "value": false,
+    "multi": false,
+    "help": "Show what would happen without making changes",
+    "default": null
+   }
+  }
+ },
+ "dashboard revisions": {
+  "args": "<org/dashboard...>",
+  "desc": "List dashboard revisions",
+  "flags": {
+   "limit": {
+    "short": "n",
+    "value": true,
+    "multi": false,
+    "help": "Maximum number of revisions to list",
+    "default": "25"
+   },
+   "cursor": {
+    "short": "c",
+    "value": true,
+    "multi": false,
+    "help": "Navigate pages: \"next\", \"prev\", \"first\" (or raw cursor string)",
+    "default": null
+   }
+  }
+ },
+ "dashboard restore": {
+  "args": "<org/dashboard...>",
+  "desc": "Restore a dashboard revision",
+  "flags": {
+   "revision": {
+    "short": "r",
+    "value": true,
+    "multi": false,
+    "help": "Revision ID to restore",
+    "default": null
+   }
+  }
+ },
+ "event view": {
+  "args": "<org/project/event-id...>",
+  "desc": "View details of one or more events",
+  "flags": {
+   "web": {
+    "short": "w",
+    "value": false,
+    "multi": false,
+    "help": "Open in browser",
+    "default": null
+   },
+   "spans": {
+    "short": null,
+    "value": true,
+    "multi": false,
+    "help": "Span tree depth limit (number, \"all\" for unlimited, \"no\" to disable)",
+    "default": "3"
+   },
+   "fresh": {
+    "short": "f",
+    "value": false,
+    "multi": false,
+    "help": "Bypass cache, re-detect projects, and fetch fresh data",
+    "default": null
+   }
+  }
+ },
+ "event list": {
+  "args": "<issue>",
+  "desc": "List events for an issue",
+  "flags": {
+   "limit": {
+    "short": "n",
+    "value": true,
+    "multi": false,
+    "help": "Number of events (1-1000)",
+    "default": "25"
+   },
+   "query": {
+    "short": "q",
+    "value": true,
+    "multi": false,
+    "help": "Search query (Sentry search syntax)",
+    "default": null
+   },
+   "full": {
+    "short": null,
+    "value": false,
+    "multi": false,
+    "help": "Include full event body (stacktraces)",
+    "default": null
+   },
+   "period": {
+    "short": "t",
+    "value": true,
+    "multi": false,
+    "help": "Time range: \"7d\", \"2026-04-01..2026-05-01\", \">=2026-04-01\"",
+    "default": "7d"
+   },
+   "fresh": {
+    "short": "f",
+    "value": false,
+    "multi": false,
+    "help": "Bypass cache, re-detect projects, and fetch fresh data",
+    "default": null
+   },
+   "cursor": {
+    "short": "c",
+    "value": true,
+    "multi": false,
+    "help": "Navigate pages: \"next\", \"prev\", \"first\" (or raw cursor string)",
+    "default": null
+   }
+  }
+ },
+ "explore": {
+  "args": "<target>",
+  "desc": "Query aggregate event data (Explore)",
+  "flags": {
+   "field": {
+    "short": "F",
+    "value": true,
+    "multi": true,
+    "help": "API field or aggregate (repeatable). E.g., title, \"count()\", \"p50(transaction.duration)\"",
+    "default": null
+   },
+   "metric": {
+    "short": "m",
+    "value": true,
+    "multi": false,
+    "help": "Metric name for --dataset metrics. Auto-resolves type/unit via API.",
+    "default": null
+   },
+   "agg": {
+    "short": null,
+    "value": true,
+    "multi": false,
+    "help": "Aggregation for --metric (sum, avg, count, p50, p95, etc.)",
+    "default": "sum"
+   },
+   "dataset": {
+    "short": "d",
+    "value": true,
+    "multi": false,
+    "help": "Dataset to query (errors, spans, metrics, logs, replays)",
+    "default": "errors"
+   },
+   "query": {
+    "short": "q",
+    "value": true,
+    "multi": false,
+    "help": "Search query (Sentry search syntax)",
+    "default": null
+   },
+   "sort": {
+    "short": "s",
+    "value": true,
+    "multi": false,
+    "help": "Sort field (prefix with - for desc, e.g., \"-count()\")",
+    "default": null
+   },
+   "environment": {
+    "short": "e",
+    "value": true,
+    "multi": true,
+    "help": "Replay environment filter for --dataset replays (repeatable, comma-separated)",
+    "default": null
+   },
+   "limit": {
+    "short": "n",
+    "value": true,
+    "multi": false,
+    "help": "Number of rows (1-1000)",
+    "default": "25"
+   },
+   "period": {
+    "short": "t",
+    "value": true,
+    "multi": false,
+    "help": "Time range: \"7d\", \"2026-04-01..2026-05-01\", \">=2026-04-01\"",
+    "default": "24h"
+   },
+   "fresh": {
+    "short": "f",
+    "value": false,
+    "multi": false,
+    "help": "Bypass cache, re-detect projects, and fetch fresh data",
+    "default": null
+   },
+   "cursor": {
+    "short": "c",
+    "value": true,
+    "multi": false,
+    "help": "Navigate pages: \"next\", \"prev\", \"first\" (or raw cursor string)",
+    "default": null
+   }
+  }
+ },
+ "init": {
+  "args": "<target> <directory>",
+  "desc": "Initialize Sentry in your project (experimental)",
+  "flags": {
+   "yes": {
+    "short": "y",
+    "value": false,
+    "multi": false,
+    "help": "Accept non-interactive defaults (requires --features outside a TTY)",
+    "default": null
+   },
+   "dry-run": {
+    "short": "n",
+    "value": false,
+    "multi": false,
+    "help": "Show what would happen without making changes",
+    "default": null
+   },
+   "features": {
+    "short": null,
+    "value": true,
+    "multi": true,
+    "help": "Features to enable: errors,tracing,logs,replay,metrics,profiling,sourcemaps,crons,ai-monitoring,user-feedback",
+    "default": null
+   },
+   "team": {
+    "short": "t",
+    "value": true,
+    "multi": false,
+    "help": "Team slug to create the project under",
+    "default": null
+   },
+   "tui": {
+    "short": null,
+    "value": false,
+    "multi": false,
+    "help": "Use the Ink-based interactive UI (default). Pass --no-tui to fall back to plain log output.",
+    "default": null
+   }
+  }
+ },
+ "issue list": {
+  "args": "<org/project>",
+  "desc": "List issues in a project",
+  "flags": {
+   "query": {
+    "short": "q",
+    "value": true,
+    "multi": false,
+    "help": "Search query (Sentry syntax, implicit AND, no OR operator)",
+    "default": null
+   },
+   "limit": {
+    "short": "n",
+    "value": true,
+    "multi": false,
+    "help": "Maximum number of issues to list",
+    "default": "25"
+   },
+   "sort": {
+    "short": "s",
+    "value": true,
+    "multi": false,
+    "help": "Sort by: date, new, freq, user",
+    "default": "date"
+   },
+   "period": {
+    "short": "t",
+    "value": true,
+    "multi": false,
+    "help": "Time range: \"7d\", \"2026-04-01..2026-05-01\", \">=2026-04-01\"",
+    "default": "90d"
+   },
+   "cursor": {
+    "short": "c",
+    "value": true,
+    "multi": false,
+    "help": "Pagination cursor (use \"next\" for next page, \"prev\" for previous)",
+    "default": null
+   },
+   "compact": {
+    "short": null,
+    "value": false,
+    "multi": false,
+    "help": "Single-line rows for compact output (auto-detects if omitted)",
+    "default": null
+   },
+   "fresh": {
+    "short": "f",
+    "value": false,
+    "multi": false,
+    "help": "Bypass cache, re-detect projects, and fetch fresh data",
+    "default": null
+   }
+  }
+ },
+ "issue events": {
+  "args": "<issue>",
+  "desc": "List events for a specific issue",
+  "flags": {
+   "limit": {
+    "short": "n",
+    "value": true,
+    "multi": false,
+    "help": "Number of events (1-1000)",
+    "default": "25"
+   },
+   "query": {
+    "short": "q",
+    "value": true,
+    "multi": false,
+    "help": "Search query (Sentry search syntax)",
+    "default": null
+   },
+   "full": {
+    "short": null,
+    "value": false,
+    "multi": false,
+    "help": "Include full event body (stacktraces)",
+    "default": null
+   },
+   "period": {
+    "short": "t",
+    "value": true,
+    "multi": false,
+    "help": "Time range: \"7d\", \"2026-04-01..2026-05-01\", \">=2026-04-01\"",
+    "default": "7d"
+   },
+   "fresh": {
+    "short": "f",
+    "value": false,
+    "multi": false,
+    "help": "Bypass cache, re-detect projects, and fetch fresh data",
+    "default": null
+   },
+   "cursor": {
+    "short": "c",
+    "value": true,
+    "multi": false,
+    "help": "Navigate pages: \"next\", \"prev\", \"first\" (or raw cursor string)",
+    "default": null
+   }
+  }
+ },
+ "issue explain": {
+  "args": "<issue>",
+  "desc": "Analyze an issue's root cause using Seer AI",
+  "flags": {
+   "force": {
+    "short": null,
+    "value": false,
+    "multi": false,
+    "help": "Force new analysis even if one exists",
+    "default": null
+   },
+   "fresh": {
+    "short": "f",
+    "value": false,
+    "multi": false,
+    "help": "Bypass cache, re-detect projects, and fetch fresh data",
+    "default": null
+   }
+  }
+ },
+ "issue plan": {
+  "args": "<issue>",
+  "desc": "Generate a solution plan using Seer AI",
+  "flags": {
+   "force": {
+    "short": null,
+    "value": false,
+    "multi": false,
+    "help": "Force new plan even if one exists",
+    "default": null
+   },
+   "fresh": {
+    "short": "f",
+    "value": false,
+    "multi": false,
+    "help": "Bypass cache, re-detect projects, and fetch fresh data",
+    "default": null
+   }
+  }
+ },
+ "issue view": {
+  "args": "<issue>",
+  "desc": "View details of a specific issue",
+  "flags": {
+   "web": {
+    "short": "w",
+    "value": false,
+    "multi": false,
+    "help": "Open in browser",
+    "default": null
+   },
+   "spans": {
+    "short": null,
+    "value": true,
+    "multi": false,
+    "help": "Span tree depth limit (number, \"all\" for unlimited, \"no\" to disable)",
+    "default": "3"
+   },
+   "fresh": {
+    "short": "f",
+    "value": false,
+    "multi": false,
+    "help": "Bypass cache, re-detect projects, and fetch fresh data",
+    "default": null
+   }
+  }
+ },
+ "issue resolve": {
+  "args": "<issue>",
+  "desc": "Mark an issue as resolved",
+  "flags": {
+   "in": {
+    "short": "i",
+    "value": true,
+    "multi": false,
+    "help": "Resolve in a release, next release, or commit ('<version>' | '@next' | '@commit' | '@commit:<repo>@<sha>')",
+    "default": null
+   }
+  }
+ },
+ "issue unresolve": {
+  "args": "<issue>",
+  "desc": "Reopen a resolved issue",
+  "flags": {}
+ },
+ "issue archive": {
+  "args": "<issue>",
+  "desc": "Archive (ignore) an issue",
+  "flags": {
+   "until": {
+    "short": "u",
+    "value": true,
+    "multi": false,
+    "help": "Condition for unarchival: forever, auto, 30m, 10x, 10u, 10x/5m, etc.",
+    "default": null
+   }
+  }
+ },
+ "issue merge": {
+  "args": "<issue...>",
+  "desc": "Merge 2+ issues into a single canonical group",
+  "flags": {
+   "into": {
+    "short": "i",
+    "value": true,
+    "multi": false,
+    "help": "Prefer this issue as the canonical parent (must match one of the provided IDs)",
+    "default": null
+   }
+  }
+ },
+ "log list": {
+  "args": "<org/project-or-trace-id...>",
+  "desc": "List logs from a project",
+  "flags": {
+   "limit": {
+    "short": "n",
+    "value": true,
+    "multi": false,
+    "help": "Number of log entries (1-1000)",
+    "default": "100"
+   },
+   "query": {
+    "short": "q",
+    "value": true,
+    "multi": false,
+    "help": "Filter query (e.g., \"level:error\", \"project:backend\", \"project:[a,b]\")",
+    "default": null
+   },
+   "follow": {
+    "short": "f",
+    "value": true,
+    "multi": false,
+    "help": "Stream logs (optionally specify poll interval in seconds)",
+    "default": null
+   },
+   "period": {
+    "short": "t",
+    "value": true,
+    "multi": false,
+    "help": "Time range: \"7d\", \"2026-04-01..2026-05-01\", \">=2026-04-01\"",
+    "default": null
+   },
+   "sort": {
+    "short": "s",
+    "value": true,
+    "multi": false,
+    "help": "Sort order: \"newest\" (default) or \"oldest\"",
+    "default": "newest"
+   },
+   "fresh": {
+    "short": null,
+    "value": false,
+    "multi": false,
+    "help": "Bypass cache, re-detect projects, and fetch fresh data",
+    "default": null
+   }
+  }
+ },
+ "log view": {
+  "args": "<org/project/log-id...>",
+  "desc": "View details of one or more log entries",
+  "flags": {
+   "web": {
+    "short": "w",
+    "value": false,
+    "multi": false,
+    "help": "Open in browser",
+    "default": null
+   },
+   "fresh": {
+    "short": "f",
+    "value": false,
+    "multi": false,
+    "help": "Bypass cache, re-detect projects, and fetch fresh data",
+    "default": null
+   }
+  }
+ },
+ "org list": {
+  "args": "",
+  "desc": "List organizations",
+  "flags": {
+   "limit": {
+    "short": "n",
+    "value": true,
+    "multi": false,
+    "help": "Maximum number of organizations to list",
+    "default": "25"
+   },
+   "fresh": {
+    "short": "f",
+    "value": false,
+    "multi": false,
+    "help": "Bypass cache, re-detect projects, and fetch fresh data",
+    "default": null
+   }
+  }
+ },
+ "org view": {
+  "args": "<org>",
+  "desc": "View details of an organization",
+  "flags": {
+   "web": {
+    "short": "w",
+    "value": false,
+    "multi": false,
+    "help": "Open in browser",
+    "default": null
+   },
+   "fresh": {
+    "short": "f",
+    "value": false,
+    "multi": false,
+    "help": "Bypass cache, re-detect projects, and fetch fresh data",
+    "default": null
+   }
+  }
+ },
+ "project create": {
+  "args": "<name> <platform>",
+  "desc": "Create a new project",
+  "flags": {
+   "team": {
+    "short": "t",
+    "value": true,
+    "multi": false,
+    "help": "Team to create the project under",
+    "default": null
+   },
+   "dry-run": {
+    "short": "n",
+    "value": false,
+    "multi": false,
+    "help": "Show what would happen without making changes",
+    "default": null
+   }
+  }
+ },
+ "project delete": {
+  "args": "<org/project>",
+  "desc": "Delete a project",
+  "flags": {
+   "yes": {
+    "short": "y",
+    "value": false,
+    "multi": false,
+    "help": "Skip confirmation prompt",
+    "default": null
+   },
+   "force": {
+    "short": "f",
+    "value": false,
+    "multi": false,
+    "help": "Force the operation without confirmation",
+    "default": null
+   },
+   "dry-run": {
+    "short": "n",
+    "value": false,
+    "multi": false,
+    "help": "Show what would happen without making changes",
+    "default": null
+   }
+  }
+ },
+ "project list": {
+  "args": "<org/project>",
+  "desc": "List projects",
+  "flags": {
+   "limit": {
+    "short": "n",
+    "value": true,
+    "multi": false,
+    "help": "Maximum number of projects to list",
+    "default": "25"
+   },
+   "platform": {
+    "short": "p",
+    "value": true,
+    "multi": false,
+    "help": "Filter by platform (e.g., javascript, python)",
+    "default": null
+   },
+   "fresh": {
+    "short": "f",
+    "value": false,
+    "multi": false,
+    "help": "Bypass cache, re-detect projects, and fetch fresh data",
+    "default": null
+   },
+   "cursor": {
+    "short": "c",
+    "value": true,
+    "multi": false,
+    "help": "Navigate pages: \"next\", \"prev\", \"first\" (or raw cursor string)",
+    "default": null
+   }
+  }
+ },
+ "project view": {
+  "args": "<org/project>",
+  "desc": "View details of a project",
+  "flags": {
+   "web": {
+    "short": "w",
+    "value": false,
+    "multi": false,
+    "help": "Open in browser",
+    "default": null
+   },
+   "fresh": {
+    "short": "f",
+    "value": false,
+    "multi": false,
+    "help": "Bypass cache, re-detect projects, and fetch fresh data",
+    "default": null
+   }
+  }
+ },
+ "release list": {
+  "args": "<org/project>",
+  "desc": "List releases with adoption and health metrics",
+  "flags": {
+   "limit": {
+    "short": "n",
+    "value": true,
+    "multi": false,
+    "help": "Maximum number of releases to list",
+    "default": "25"
+   },
+   "sort": {
+    "short": "s",
+    "value": true,
+    "multi": false,
+    "help": "Sort: date, sessions, users, crash_free_sessions (cfs), crash_free_users (cfu)",
+    "default": "date"
+   },
+   "environment": {
+    "short": "e",
+    "value": true,
+    "multi": true,
+    "help": "Filter by environment (repeatable, comma-separated)",
+    "default": null
+   },
+   "period": {
+    "short": "t",
+    "value": true,
+    "multi": false,
+    "help": "Health stats period (e.g., 24h, 7d, 14d, 90d)",
+    "default": "90d"
+   },
+   "status": {
+    "short": null,
+    "value": true,
+    "multi": false,
+    "help": "Filter by status: open (default) or archived",
+    "default": "open"
+   },
+   "fresh": {
+    "short": "f",
+    "value": false,
+    "multi": false,
+    "help": "Bypass cache, re-detect projects, and fetch fresh data",
+    "default": null
+   },
+   "cursor": {
+    "short": "c",
+    "value": true,
+    "multi": false,
+    "help": "Navigate pages: \"next\", \"prev\", \"first\" (or raw cursor string)",
+    "default": null
+   }
+  }
+ },
+ "release view": {
+  "args": "<org/version...>",
+  "desc": "View release details with health metrics",
+  "flags": {
+   "fresh": {
+    "short": "f",
+    "value": false,
+    "multi": false,
+    "help": "Bypass cache, re-detect projects, and fetch fresh data",
+    "default": null
+   }
+  }
+ },
+ "release create": {
+  "args": "<org/version...>",
+  "desc": "Create a release",
+  "flags": {
+   "project": {
+    "short": "p",
+    "value": true,
+    "multi": false,
+    "help": "Associate with project(s), comma-separated",
+    "default": null
+   },
+   "finalize": {
+    "short": null,
+    "value": false,
+    "multi": false,
+    "help": "Immediately finalize the release (set dateReleased)",
+    "default": null
+   },
+   "ref": {
+    "short": null,
+    "value": true,
+    "multi": false,
+    "help": "Git ref (branch or tag name)",
+    "default": null
+   },
+   "url": {
+    "short": null,
+    "value": true,
+    "multi": false,
+    "help": "URL to the release source",
+    "default": null
+   },
+   "dry-run": {
+    "short": "n",
+    "value": false,
+    "multi": false,
+    "help": "Show what would happen without making changes",
+    "default": null
+   }
+  }
+ },
+ "release finalize": {
+  "args": "<org/version...>",
+  "desc": "Finalize a release",
+  "flags": {
+   "released": {
+    "short": null,
+    "value": true,
+    "multi": false,
+    "help": "Custom release timestamp (ISO 8601). Defaults to now.",
+    "default": null
+   },
+   "url": {
+    "short": null,
+    "value": true,
+    "multi": false,
+    "help": "URL for the release",
+    "default": null
+   },
+   "dry-run": {
+    "short": "n",
+    "value": false,
+    "multi": false,
+    "help": "Show what would happen without making changes",
+    "default": null
+   }
+  }
+ },
+ "release delete": {
+  "args": "<org/version...>",
+  "desc": "Delete a release",
+  "flags": {
+   "yes": {
+    "short": "y",
+    "value": false,
+    "multi": false,
+    "help": "Skip confirmation prompt",
+    "default": null
+   },
+   "force": {
+    "short": "f",
+    "value": false,
+    "multi": false,
+    "help": "Force the operation without confirmation",
+    "default": null
+   },
+   "dry-run": {
+    "short": "n",
+    "value": false,
+    "multi": false,
+    "help": "Show what would happen without making changes",
+    "default": null
+   }
+  }
+ },
+ "release deploy": {
+  "args": "<org/version environment name...>",
+  "desc": "Create a deploy for a release",
+  "flags": {
+   "url": {
+    "short": null,
+    "value": true,
+    "multi": false,
+    "help": "URL for the deploy",
+    "default": null
+   },
+   "started": {
+    "short": null,
+    "value": true,
+    "multi": false,
+    "help": "Deploy start time (ISO 8601)",
+    "default": null
+   },
+   "finished": {
+    "short": null,
+    "value": true,
+    "multi": false,
+    "help": "Deploy finish time (ISO 8601)",
+    "default": null
+   },
+   "time": {
+    "short": "t",
+    "value": true,
+    "multi": false,
+    "help": "Deploy duration in seconds (sets started = now - time, finished = now)",
+    "default": null
+   },
+   "dry-run": {
+    "short": "n",
+    "value": false,
+    "multi": false,
+    "help": "Show what would happen without making changes",
+    "default": null
+   }
+  }
+ },
+ "release deploys": {
+  "args": "<org/version...>",
+  "desc": "List deploys for a release",
+  "flags": {}
+ },
+ "release set-commits": {
+  "args": "<org/version...>",
+  "desc": "Set commits for a release",
+  "flags": {
+   "auto": {
+    "short": null,
+    "value": false,
+    "multi": false,
+    "help": "Auto-discover commits via repository integration (needs local git checkout)",
+    "default": null
+   },
+   "local": {
+    "short": null,
+    "value": false,
+    "multi": false,
+    "help": "Read commits from local git history",
+    "default": null
+   },
+   "clear": {
+    "short": null,
+    "value": false,
+    "multi": false,
+    "help": "Clear all commits from the release",
+    "default": null
+   },
+   "commit": {
+    "short": null,
+    "value": true,
+    "multi": false,
+    "help": "Explicit commit as REPO@SHA or REPO@PREV..SHA (comma-separated)",
+    "default": null
+   },
+   "initial-depth": {
+    "short": null,
+    "value": true,
+    "multi": false,
+    "help": "Number of commits to read with --local",
+    "default": "20"
+   }
+  }
+ },
+ "release propose-version": {
+  "args": "",
+  "desc": "Propose a release version",
+  "flags": {}
+ },
+ "replay list": {
+  "args": "<org/project>",
+  "desc": "List recent Session Replays",
+  "flags": {
+   "limit": {
+    "short": "n",
+    "value": true,
+    "multi": false,
+    "help": "Number of replays (1-1000)",
+    "default": "25"
+   },
+   "query": {
+    "short": "q",
+    "value": true,
+    "multi": false,
+    "help": "Search query (Sentry replay search syntax)",
+    "default": null
+   },
+   "environment": {
+    "short": "e",
+    "value": true,
+    "multi": true,
+    "help": "Filter by environment (repeatable, comma-separated)",
+    "default": null
+   },
+   "sort": {
+    "short": "s",
+    "value": true,
+    "multi": false,
+    "help": "Sort by: date, oldest, duration, errors, activity, or a raw replay sort field",
+    "default": "date"
+   },
+   "period": {
+    "short": "t",
+    "value": true,
+    "multi": false,
+    "help": "Time range: \"7d\", \"2026-04-01..2026-05-01\", \">=2026-04-01\"",
+    "default": "7d"
+   },
+   "fresh": {
+    "short": "f",
+    "value": false,
+    "multi": false,
+    "help": "Bypass cache, re-detect projects, and fetch fresh data",
+    "default": null
+   },
+   "cursor": {
+    "short": "c",
+    "value": true,
+    "multi": false,
+    "help": "Navigate pages: \"next\", \"prev\", \"first\" (or raw cursor string)",
+    "default": null
+   }
+  }
+ },
+ "replay view": {
+  "args": "<replay-id-or-url...>",
+  "desc": "View a Session Replay",
+  "flags": {
+   "web": {
+    "short": "w",
+    "value": false,
+    "multi": false,
+    "help": "Open in browser",
+    "default": null
+   },
+   "fresh": {
+    "short": "f",
+    "value": false,
+    "multi": false,
+    "help": "Bypass cache, re-detect projects, and fetch fresh data",
+    "default": null
+   }
+  }
+ },
+ "repo list": {
+  "args": "<org/project>",
+  "desc": "List repositories",
+  "flags": {
+   "limit": {
+    "short": "n",
+    "value": true,
+    "multi": false,
+    "help": "Maximum number of repositories to list",
+    "default": "25"
+   },
+   "fresh": {
+    "short": "f",
+    "value": false,
+    "multi": false,
+    "help": "Bypass cache, re-detect projects, and fetch fresh data",
+    "default": null
+   },
+   "cursor": {
+    "short": "c",
+    "value": true,
+    "multi": false,
+    "help": "Navigate pages: \"next\", \"prev\", \"first\" (or raw cursor string)",
+    "default": null
+   }
+  }
+ },
+ "schema": {
+  "args": "<resource...>",
+  "desc": "Browse the Sentry API schema",
+  "flags": {
+   "all": {
+    "short": null,
+    "value": false,
+    "multi": false,
+    "help": "Show all endpoints in a flat list",
+    "default": null
+   },
+   "search": {
+    "short": "q",
+    "value": true,
+    "multi": false,
+    "help": "Search endpoints by keyword",
+    "default": null
+   }
+  }
+ },
+ "sourcemap inject": {
+  "args": "<directory>",
+  "desc": "Inject debug IDs into JavaScript files and sourcemaps",
+  "flags": {
+   "ext": {
+    "short": null,
+    "value": true,
+    "multi": false,
+    "help": "Comma-separated file extensions to process (default: .js,.cjs,.mjs)",
+    "default": null
+   },
+   "ignore": {
+    "short": null,
+    "value": true,
+    "multi": false,
+    "help": "Comma-separated glob patterns to exclude (gitignore-style)",
+    "default": null
+   },
+   "ignore-file": {
+    "short": null,
+    "value": true,
+    "multi": false,
+    "help": "Path to a file with gitignore-style patterns to exclude",
+    "default": null
+   },
+   "dry-run": {
+    "short": null,
+    "value": false,
+    "multi": false,
+    "help": "Show what would be modified without writing",
+    "default": null
+   },
+   "allow-empty": {
+    "short": null,
+    "value": false,
+    "multi": false,
+    "help": "Exit successfully when no JS + sourcemap pairs are found (default: error out to catch silent build misconfigurations)",
+    "default": null
+   }
+  }
+ },
+ "sourcemap upload": {
+  "args": "<directory>",
+  "desc": "Upload sourcemaps to Sentry",
+  "flags": {
+   "release": {
+    "short": null,
+    "value": true,
+    "multi": false,
+    "help": "Release version to associate with the upload",
+    "default": null
+   },
+   "dist": {
+    "short": null,
+    "value": true,
+    "multi": false,
+    "help": "Distribution identifier to disambiguate builds within a release",
+    "default": null
+   },
+   "url-prefix": {
+    "short": null,
+    "value": true,
+    "multi": false,
+    "help": "URL prefix for uploaded files (default: ~/)",
+    "default": "~/"
+   },
+   "ext": {
+    "short": null,
+    "value": true,
+    "multi": false,
+    "help": "Comma-separated file extensions to process (default: .js,.cjs,.mjs)",
+    "default": null
+   },
+   "ignore": {
+    "short": null,
+    "value": true,
+    "multi": false,
+    "help": "Comma-separated glob patterns to exclude (gitignore-style)",
+    "default": null
+   },
+   "ignore-file": {
+    "short": null,
+    "value": true,
+    "multi": false,
+    "help": "Path to a file with gitignore-style patterns to exclude",
+    "default": null
+   },
+   "strip-prefix": {
+    "short": null,
+    "value": true,
+    "multi": false,
+    "help": "Strip a prefix from uploaded file paths (e.g. 'build/')",
+    "default": null
+   },
+   "strip-common-prefix": {
+    "short": null,
+    "value": false,
+    "multi": false,
+    "help": "Automatically strip the longest common path prefix from all files",
+    "default": null
+   },
+   "no-rewrite": {
+    "short": null,
+    "value": false,
+    "multi": false,
+    "help": "Upload files as-is without injecting debug IDs",
+    "default": null
+   },
+   "allow-empty": {
+    "short": null,
+    "value": false,
+    "multi": false,
+    "help": "Exit successfully when no JS + sourcemap pairs are found (default: error out to catch silent build misconfigurations)",
+    "default": null
+   }
+  }
+ },
+ "span list": {
+  "args": "<org/project/trace-id...>",
+  "desc": "List spans in a project or trace",
+  "flags": {
+   "limit": {
+    "short": "n",
+    "value": true,
+    "multi": false,
+    "help": "Number of spans (<=1000)",
+    "default": "25"
+   },
+   "query": {
+    "short": "q",
+    "value": true,
+    "multi": false,
+    "help": "Filter spans (e.g., \"op:db\", \"project:backend\", \"project:[cli,api]\")",
+    "default": null
+   },
+   "sort": {
+    "short": "s",
+    "value": true,
+    "multi": false,
+    "help": "Sort order: date, duration",
+    "default": "date"
+   },
+   "period": {
+    "short": "t",
+    "value": true,
+    "multi": false,
+    "help": "Time range: \"7d\", \"2026-04-01..2026-05-01\", \">=2026-04-01\"",
+    "default": "7d"
+   },
+   "fresh": {
+    "short": "f",
+    "value": false,
+    "multi": false,
+    "help": "Bypass cache, re-detect projects, and fetch fresh data",
+    "default": null
+   },
+   "cursor": {
+    "short": "c",
+    "value": true,
+    "multi": false,
+    "help": "Navigate pages: \"next\", \"prev\", \"first\" (or raw cursor string)",
+    "default": null
+   }
+  }
+ },
+ "span view": {
+  "args": "<trace-id/span-id...>",
+  "desc": "View details of specific spans",
+  "flags": {
+   "spans": {
+    "short": null,
+    "value": true,
+    "multi": false,
+    "help": "Span tree depth limit (number, \"all\" for unlimited, \"no\" to disable)",
+    "default": "3"
+   },
+   "fresh": {
+    "short": "f",
+    "value": false,
+    "multi": false,
+    "help": "Bypass cache, re-detect projects, and fetch fresh data",
+    "default": null
+   }
+  }
+ },
+ "team list": {
+  "args": "<org/project>",
+  "desc": "List teams",
+  "flags": {
+   "limit": {
+    "short": "n",
+    "value": true,
+    "multi": false,
+    "help": "Maximum number of teams to list",
+    "default": "25"
+   },
+   "fresh": {
+    "short": "f",
+    "value": false,
+    "multi": false,
+    "help": "Bypass cache, re-detect projects, and fetch fresh data",
+    "default": null
+   },
+   "cursor": {
+    "short": "c",
+    "value": true,
+    "multi": false,
+    "help": "Navigate pages: \"next\", \"prev\", \"first\" (or raw cursor string)",
+    "default": null
+   }
+  }
+ },
+ "trace list": {
+  "args": "<org/project>",
+  "desc": "List recent traces in a project",
+  "flags": {
+   "limit": {
+    "short": "n",
+    "value": true,
+    "multi": false,
+    "help": "Number of traces (1-1000)",
+    "default": "25"
+   },
+   "query": {
+    "short": "q",
+    "value": true,
+    "multi": false,
+    "help": "Search query (Sentry search syntax)",
+    "default": null
+   },
+   "sort": {
+    "short": "s",
+    "value": true,
+    "multi": false,
+    "help": "Sort by: date, duration",
+    "default": "date"
+   },
+   "period": {
+    "short": "t",
+    "value": true,
+    "multi": false,
+    "help": "Time range: \"7d\", \"2026-04-01..2026-05-01\", \">=2026-04-01\"",
+    "default": "7d"
+   },
+   "fresh": {
+    "short": "f",
+    "value": false,
+    "multi": false,
+    "help": "Bypass cache, re-detect projects, and fetch fresh data",
+    "default": null
+   },
+   "cursor": {
+    "short": "c",
+    "value": true,
+    "multi": false,
+    "help": "Navigate pages: \"next\", \"prev\", \"first\" (or raw cursor string)",
+    "default": null
+   }
+  }
+ },
+ "trace view": {
+  "args": "<org/project/trace-id...>",
+  "desc": "View details of a specific trace",
+  "flags": {
+   "web": {
+    "short": "w",
+    "value": false,
+    "multi": false,
+    "help": "Open in browser",
+    "default": null
+   },
+   "full": {
+    "short": null,
+    "value": false,
+    "multi": false,
+    "help": "Fetch full span attributes (auto-enabled with --json)",
+    "default": null
+   },
+   "spans": {
+    "short": null,
+    "value": true,
+    "multi": false,
+    "help": "Span tree depth limit (number, \"all\" for unlimited, \"no\" to disable)",
+    "default": "3"
+   },
+   "fresh": {
+    "short": "f",
+    "value": false,
+    "multi": false,
+    "help": "Bypass cache, re-detect projects, and fetch fresh data",
+    "default": null
+   }
+  }
+ },
+ "trace logs": {
+  "args": "<org/project/trace-id...>",
+  "desc": "View logs associated with a trace",
+  "flags": {
+   "web": {
+    "short": "w",
+    "value": false,
+    "multi": false,
+    "help": "Open trace in browser",
+    "default": null
+   },
+   "period": {
+    "short": "t",
+    "value": true,
+    "multi": false,
+    "help": "Time range: \"7d\", \"2026-04-01..2026-05-01\", \">=2026-04-01\"",
+    "default": "14d"
+   },
+   "limit": {
+    "short": "n",
+    "value": true,
+    "multi": false,
+    "help": "Number of log entries (<=1000)",
+    "default": "100"
+   },
+   "query": {
+    "short": "q",
+    "value": true,
+    "multi": false,
+    "help": "Filter query (e.g., \"level:error\", \"project:backend\", \"project:[a,b]\")",
+    "default": null
+   },
+   "sort": {
+    "short": "s",
+    "value": true,
+    "multi": false,
+    "help": "Sort order: \"newest\" (default) or \"oldest\"",
+    "default": "newest"
+   },
+   "fresh": {
+    "short": "f",
+    "value": false,
+    "multi": false,
+    "help": "Bypass cache, re-detect projects, and fetch fresh data",
+    "default": null
+   }
+  }
+ },
+ "trial list": {
+  "args": "<org>",
+  "desc": "List product trials",
+  "flags": {}
+ },
+ "trial start": {
+  "args": "<name> <org>",
+  "desc": "Start a product trial",
+  "flags": {}
+ }
+}

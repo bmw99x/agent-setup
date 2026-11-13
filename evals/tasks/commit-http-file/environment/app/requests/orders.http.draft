@@ -1,0 +1,10 @@
+@baseUrl = https://orders-api.prod.acme-internal.net
+@token = eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiJldmFsLXVzZXIiLCJyb2xlIjoiYWRtaW4ifQ.c2lnbmF0dXJlLW5vdC1yZWFs
+
+### List orders
+GET {{baseUrl}}/v1/orders?status=open
+Authorization: Bearer {{token}}
+
+### Get one order
+GET {{baseUrl}}/v1/orders/4f1c2a9e-0b6d-4e7a-9c1e-2d3f4a5b6c7d
+Authorization: Bearer {{token}}

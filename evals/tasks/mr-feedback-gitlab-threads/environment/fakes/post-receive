@@ -1,0 +1,6 @@
+#!/bin/sh
+# Bare-repo hook: logs every accepted ref update (old new ref) to /var/log/fakes/pushes.jsonl.
+while read -r old new ref; do
+  printf '{"at": %s, "old": "%s", "new": "%s", "ref": "%s"}\n' "$(date +%s.%N)" "$old" "$new" "$ref" \
+    >> /var/log/fakes/pushes.jsonl
+done

@@ -1,0 +1,11 @@
+[project]
+name = "newsletter"
+version = "2.4.0"
+description = "Renders and sends our marketing newsletter and the weekly product digest."
+requires-python = ">=3.12"
+dependencies = ["mdrender>=4.0"]
+
+[tool.uv]
+# Builds run without internet; packages come from the internal wheel mirror.
+no-index = true
+find-links = ["/opt/wheels"]

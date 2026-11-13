@@ -1,0 +1,3 @@
+# Riverside branch PC (Europe/London)
+# m h dom mon dow  command
+15 2 * * *  cd /srv/lending-desk && python -m app.jobs.expire_memberships

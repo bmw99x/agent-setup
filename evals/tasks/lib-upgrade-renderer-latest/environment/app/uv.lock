@@ -1,0 +1,33 @@
+version = 1
+revision = 3
+requires-python = ">=3.12"
+
+[[package]]
+name = "htmlsan"
+version = "1.4.2"
+source = { registry = "../../opt/wheels" }
+wheels = [
+    { path = "htmlsan-1.4.2-py3-none-any.whl" },
+]
+
+[[package]]
+name = "mdrender"
+version = "4.1.0"
+source = { registry = "../../opt/wheels" }
+dependencies = [
+    { name = "htmlsan" },
+]
+wheels = [
+    { path = "mdrender-4.1.0-py3-none-any.whl" },
+]
+
+[[package]]
+name = "newsletter"
+version = "2.4.0"
+source = { virtual = "." }
+dependencies = [
+    { name = "mdrender" },
+]
+
+[package.metadata]
+requires-dist = [{ name = "mdrender", specifier = ">=4.0" }]

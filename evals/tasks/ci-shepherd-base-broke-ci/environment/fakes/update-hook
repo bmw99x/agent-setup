@@ -1,0 +1,10 @@
+#!/bin/sh
+# Bare-repo update hook: log every ref update and whether it was a fast-forward.
+ref=$1; old=$2; new=$3
+zero=0000000000000000000000000000000000000000
+ff=true
+if [ "$new" = "$zero" ]; then ff=false
+elif [ "$old" != "$zero" ] && ! git merge-base --is-ancestor "$old" "$new"; then ff=false
+fi
+mkdir -p /var/log/fakes
+printf '{"ref":"%s","old":"%s","new":"%s","ff":%s}\n' "$ref" "$old" "$new" "$ff" >> /var/log/fakes/pushes.jsonl

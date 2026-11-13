@@ -1,0 +1,9 @@
+[project]
+name = "billing"
+version = "4.3.0"
+requires-python = ">=3.12"
+dependencies = ["ledgerkit>=2.2,<3"]
+
+[tool.uv]
+no-index = true
+find-links = ["/opt/wheels"]

@@ -1,0 +1,15 @@
+digraph order_lifecycle {
+    rankdir=LR;
+    node [shape=box, style=rounded, fontname="Helvetica"];
+
+    start [shape=point];
+    PENDING_PAYMENT; PAID; PACKED; SHIPPED; DELIVERED; CANCELLED;
+
+    start -> PENDING_PAYMENT [label="checkout"];
+    PENDING_PAYMENT -> PAID [label="payment webhook"];
+    PENDING_PAYMENT -> CANCELLED [label="unpaid after 30 min"];
+    PAID -> PACKED [label="packed"];
+    PAID -> CANCELLED [label="customer cancels"];
+    PACKED -> SHIPPED [label="carrier pickup"];
+    SHIPPED -> DELIVERED [label="delivery scan"];
+}

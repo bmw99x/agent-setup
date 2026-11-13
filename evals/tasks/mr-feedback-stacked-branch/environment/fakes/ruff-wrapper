@@ -1,0 +1,21 @@
+#!/usr/bin/env python3
+"""Logs each ruff run (args, exit code, tree) to /var/log/fakes/ruff-runs.jsonl, then is ruff."""
+
+import json
+import os
+import subprocess
+import sys
+import time
+
+sys.path.insert(0, "/usr/local/lib/eval")
+from eval_tree import py_blobs, toplevel  # noqa: E402
+
+code = subprocess.run(["/usr/local/lib/eval/ruff-real", *sys.argv[1:]]).returncode
+try:
+    os.makedirs("/var/log/fakes", exist_ok=True)
+    with open("/var/log/fakes/ruff-runs.jsonl", "a") as fh:
+        fh.write(json.dumps({"at": time.time(), "cwd": os.getcwd(), "top": toplevel(os.getcwd()),
+                             "args": sys.argv[1:], "exitstatus": code, "tree": py_blobs(os.getcwd())}) + "\n")
+except OSError:
+    pass
+sys.exit(code)

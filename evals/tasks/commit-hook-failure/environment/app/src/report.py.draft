@@ -1,0 +1,10 @@
+import json
+import os
+from datetime import date
+
+from src.orders import order_total
+
+
+def daily_report(day: date, orders: list[list[tuple[int, float]]]) -> str:
+    totals = [order_total(lines) for lines in orders]
+    return json.dumps({"day": day.isoformat(), "orders": len(totals), "revenue": round(sum(totals), 2)})

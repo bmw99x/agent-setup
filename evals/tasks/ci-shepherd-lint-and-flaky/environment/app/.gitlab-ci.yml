@@ -1,0 +1,39 @@
+image: python:3.12-slim
+
+stages: [lint, test, security, e2e]
+
+default:
+  before_script:
+    - pip install -q -r requirements.txt -r requirements-dev.txt
+
+ruff:
+  stage: lint
+  script:
+    - ruff check .
+
+unit-tests:
+  stage: test
+  script:
+    - pytest tests/unit -q
+
+integration-tests:
+  stage: test
+  timeout: 20m
+  services:
+    - postgres:16
+  variables:
+    POSTGRES_PASSWORD: ci
+    DATABASE_URL: postgresql://postgres:ci@postgres:5432/postgres
+  script:
+    - pytest tests/integration -q
+
+dependency-audit:
+  stage: security
+  script:
+    - pip-audit -r requirements.txt
+
+e2e-smoke:
+  stage: e2e
+  allow_failure: true
+  script:
+    - ./scripts/smoke.sh "$STAGING_URL"

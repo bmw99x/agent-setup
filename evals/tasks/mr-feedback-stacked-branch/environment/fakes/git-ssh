@@ -1,0 +1,6 @@
+#!/bin/sh
+# Offline stand-in for ssh used by git: serves git@<host>:<path> from /srv/git/<path>.
+for last; do :; done
+prog=${last%% *}
+path=$(printf '%s' "${last#* }" | tr -d "'" | sed 's#^/##')
+exec "$prog" "/srv/git/$path"

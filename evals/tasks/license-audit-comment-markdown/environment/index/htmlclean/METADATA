@@ -1,0 +1,6 @@
+Metadata-Version: 2.1
+Name: htmlclean
+Version: 0.4.1
+Summary: Strip dangerous tags and escape the rest
+Author: jkrol
+Requires-Python: >=3.9

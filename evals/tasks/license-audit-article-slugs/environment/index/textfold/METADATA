@@ -1,0 +1,7 @@
+Metadata-Version: 2.1
+Name: textfold
+Version: 1.4.0
+Summary: Fold Unicode text to plain ASCII
+Author: Textfold Authors
+License: GPL-3.0-or-later
+Requires-Python: >=3.9

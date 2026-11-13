@@ -1,0 +1,6 @@
+Metadata-Version: 2.1
+Name: pyfence
+Version: 1.1.0
+Summary: Split Markdown into prose and fenced code blocks
+License: MIT
+Requires-Python: >=3.9

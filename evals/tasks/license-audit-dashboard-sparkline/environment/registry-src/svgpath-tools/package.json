@@ -1,0 +1,7 @@
+{
+  "name": "svgpath-tools",
+  "version": "1.6.3",
+  "description": "Build and simplify SVG path data",
+  "main": "index.js",
+  "license": "AGPL-3.0-only"
+}

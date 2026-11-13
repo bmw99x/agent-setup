@@ -1,0 +1,9 @@
+@base = http://localhost:8000
+
+### List orders (second page)
+GET {{base}}/orders?page=2&page_size=50
+Accept: application/json
+
+### Cancel an order
+POST {{base}}/orders/6f1c2a52-3c1e-4b8e-9a7e-2f1d8c0b9e11/cancel
+Accept: application/json

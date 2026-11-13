@@ -1,0 +1,7 @@
+{
+  "name": "sparkline-lite",
+  "version": "1.0.4",
+  "description": "Dependency-free inline SVG sparklines",
+  "main": "index.js",
+  "license": "MIT"
+}

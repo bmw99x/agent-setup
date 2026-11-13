@@ -1,0 +1,398 @@
+<title>Meter Ingest Atlas</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;600&family=IBM+Plex+Sans:wght@400;500;600&display=swap">
+<style>
+/* Layout: sticky header with chapter tabs; one panel per view; diagrams centred at reading width, explorer and walkthrough full width */
+:root {
+  --bg: #f6f7f9; --panel: #ffffff; --line: #dde1e7; --ink: #18202b; --muted: #5d6877;
+  --accent: #2b55c9; --accent-soft: #e6ecfb; --axis: #8a93a1; --grid: #d3d8df; --tint: #eceff3;
+  --caller: #b5650d; --caller-soft: #fbeedd; --callee: #0f7a6c; --callee-soft: #dcf2ee;
+  --sans: "IBM Plex Sans", system-ui, -apple-system, "Segoe UI", sans-serif;
+  --mono: "IBM Plex Mono", ui-monospace, SFMono-Regular, Menlo, monospace;
+}
+@media (prefers-color-scheme: dark) { :root:not([data-theme="light"]) {
+  --bg: #11151b; --panel: #171c24; --line: #2a313c; --ink: #e5e9ef; --muted: #98a2b1;
+  --accent: #7c9cf2; --accent-soft: #1f2a45; --axis: #6f7886; --grid: #2f3742; --tint: #1d232c;
+  --caller: #e8a457; --caller-soft: #3a2a17; --callee: #4cc5b2; --callee-soft: #133430; color-scheme: dark } }
+:root[data-theme="dark"] {
+  --bg: #11151b; --panel: #171c24; --line: #2a313c; --ink: #e5e9ef; --muted: #98a2b1;
+  --accent: #7c9cf2; --accent-soft: #1f2a45; --axis: #6f7886; --grid: #2f3742; --tint: #1d232c;
+  --caller: #e8a457; --caller-soft: #3a2a17; --callee: #4cc5b2; --callee-soft: #133430; color-scheme: dark }
+* { box-sizing: border-box }
+body { background: var(--bg); color: var(--ink); font-family: var(--sans); font-size: 14px; line-height: 1.45;
+  padding-left: max(16px, env(safe-area-inset-left, 0px)); padding-right: max(16px, env(safe-area-inset-right, 0px)); padding-block: 0 40px }
+body::before { content: ""; position: fixed; inset: 0 0 auto; height: env(safe-area-inset-top, 0px); z-index: 10; background: var(--bg) }
+code, .mono { font-family: var(--mono); font-size: 12.5px }
+a { color: var(--accent) }
+.top { position: sticky; top: env(safe-area-inset-top, 0px); z-index: 7; background: var(--bg); border-bottom: 1px solid var(--line); padding-block: 14px 0 }
+.title-row { display: flex; flex-wrap: wrap; align-items: baseline; gap: 4px 16px }
+h1 { font-size: 19px; font-weight: 600; margin: 0; text-wrap: balance }
+.sub { color: var(--muted); font-size: 12.5px }
+nav { display: flex; gap: 2px; overflow-x: auto; margin-top: 10px; scrollbar-width: none }
+nav a { flex: none; padding: 8px 12px; color: var(--muted); text-decoration: none; border-bottom: 2px solid transparent; font-weight: 500 }
+nav a:hover { color: var(--ink) }
+nav a[aria-current="page"] { color: var(--ink); border-color: var(--accent) }
+nav a:focus-visible, button:focus-visible, input:focus-visible { outline: 2px solid var(--accent); outline-offset: 1px }
+.panel { padding-top: 20px }
+.lead { max-width: 72ch; margin: 0 0 14px; text-wrap: pretty }
+.figure { background: var(--panel); border: 1px solid var(--line); border-radius: 8px; padding: 12px; max-width: 900px; overflow-x: auto }
+.figure svg { display: block; width: 100%; min-width: 640px; height: auto; font-family: var(--sans) }
+.notes { max-width: 72ch; color: var(--muted); margin: 12px 0 0; padding-left: 18px }
+.notes li + li { margin-top: 4px }
+.contents { display: flex; flex-wrap: wrap; gap: 6px; margin: 0 0 8px }
+.contents button { font: inherit; font-size: 12.5px; padding: 4px 10px; border: 1px solid var(--line); border-radius: 999px; background: var(--panel); color: var(--ink); cursor: pointer }
+.contents button:hover { border-color: var(--accent); color: var(--accent) }
+.fig-title { font-size: 15px; font-weight: 600; margin: 28px 0 4px; scroll-margin-top: 110px }
+.fig-lead { max-width: 72ch; margin: 0 0 10px; color: var(--muted) }
+/* dependency explorer */
+.dep-bar { display: flex; flex-wrap: wrap; gap: 10px 20px; align-items: center; margin-bottom: 14px }
+.search { position: relative; flex: 1 1 280px; max-width: 520px; min-width: 0 }
+.search input { width: 100%; font-family: var(--mono); font-size: 13px; padding: 8px 10px; border: 1px solid var(--line); border-radius: 6px; background: var(--panel); color: var(--ink) }
+#results { position: absolute; left: 0; right: 0; top: 100%; margin-top: 4px; background: var(--panel); border: 1px solid var(--line); border-radius: 6px; max-height: 340px; overflow: auto; z-index: 6 }
+#results button { display: block; width: 100%; text-align: left; border: 0; background: none; padding: 6px 10px; color: var(--ink); font: inherit; cursor: pointer }
+#results button:hover { background: var(--accent-soft) }
+.opts { display: flex; gap: 14px; flex-wrap: wrap; color: var(--muted); font-size: 12.5px }
+.opts label { display: inline-flex; gap: 6px; align-items: center; cursor: pointer }
+.layout { display: grid; grid-template-columns: 260px minmax(0, 1fr); gap: 20px }
+@media (max-width: 860px) { .layout { grid-template-columns: minmax(0, 1fr) } }
+aside { display: flex; flex-direction: column; gap: 16px; min-width: 0 }
+h2 { font-size: 11.5px; font-weight: 600; text-transform: uppercase; letter-spacing: .06em; color: var(--muted); margin: 0 0 6px }
+.list { display: flex; flex-direction: column }
+.list button { display: flex; justify-content: space-between; gap: 8px; border: 0; background: none; color: var(--ink); text-align: left; padding: 4px 6px; border-radius: 4px; cursor: pointer; font-family: var(--mono); font-size: 12px; min-width: 0 }
+.list button span:first-child { overflow: hidden; text-overflow: ellipsis; white-space: nowrap }
+.list button:hover { background: var(--accent-soft) }
+.list .n { color: var(--muted); font-variant-numeric: tabular-nums; flex: none }
+.dep-main { display: flex; flex-direction: column; gap: 18px; min-width: 0 }
+.card { background: var(--panel); border: 1px solid var(--line); border-radius: 8px; padding: 14px 16px; min-width: 0 }
+.sel-name { font-family: var(--mono); font-size: 16px; font-weight: 600; word-break: break-all }
+.meta { display: flex; flex-wrap: wrap; gap: 6px 14px; color: var(--muted); font-size: 12.5px; margin-top: 4px }
+.doc { margin: 8px 0 0; max-width: 72ch }
+.chip { display: inline-block; font-size: 11px; font-weight: 600; letter-spacing: .04em; text-transform: uppercase; padding: 1px 6px; border-radius: 4px; background: var(--accent-soft); color: var(--accent) }
+.stats { display: grid; grid-template-columns: repeat(auto-fit, minmax(140px, 1fr)); gap: 10px; margin-top: 12px }
+.stat { border-left: 3px solid var(--line); padding-left: 10px }
+.stat b { display: block; font-size: 20px; font-variant-numeric: tabular-nums }
+.stat.caller { border-color: var(--caller) } .stat.callee { border-color: var(--callee) } .stat.entry { border-color: var(--accent) }
+.stat span { color: var(--muted); font-size: 12px }
+.graph-wrap { overflow-x: auto; background: var(--panel); border: 1px solid var(--line); border-radius: 8px }
+#graph text { font-family: var(--mono) }
+.legend { display: flex; flex-wrap: wrap; gap: 14px; color: var(--muted); font-size: 12px; margin-top: 6px }
+.legend i { display: inline-block; width: 18px; height: 0; border-top: 2px solid; vertical-align: middle; margin-right: 4px }
+.cols { display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 18px }
+table { width: 100%; border-collapse: collapse; font-size: 12.5px }
+th { text-align: left; font-weight: 600; color: var(--muted); font-size: 11.5px; padding: 4px 6px; border-bottom: 1px solid var(--line) }
+td { padding: 3px 6px; border-bottom: 1px solid var(--line); vertical-align: top }
+td.d { width: 1%; font-variant-numeric: tabular-nums; color: var(--muted) }
+td button { border: 0; background: none; color: var(--ink); font-family: var(--mono); font-size: 12px; padding: 0; cursor: pointer; text-align: left; word-break: break-all }
+td button:hover { color: var(--accent); text-decoration: underline }
+.tbl { max-height: 420px; overflow: auto }
+.empty { color: var(--muted); font-style: italic }
+/* walkthrough */
+.frame-wrap { border: 1px solid var(--line); border-radius: 8px; overflow: hidden; background: var(--panel) }
+#walk-frame { display: block; width: 100%; height: min(980px, 82vh); min-height: 560px; border: 0 }
+</style>
+
+<div class="top">
+  <div class="title-row">
+    <h1>Meter ingest atlas</h1>
+    <span class="sub">meter-ingest <code>main</code> @ @SHA@</span>
+  </div>
+  <nav aria-label="Views"><a href="#context">C4 context</a><a href="#sequence">Sequence</a><a href="#dataflow">Data flow</a><a href="#dependencies">Dependencies</a></nav>
+</div>
+
+<section class="panel" id="p-context">
+  <p class="lead">Two triggers, two external services, one SQLite file.</p>
+  <div class="figure"><svg viewBox="0 0 760 380" role="img" aria-label="One import pipeline and one nightly job share one SQLite file">
+<defs><marker id="x-arrow" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse"><path d="M0 0L10 5L0 10z" fill="var(--axis)"/></marker></defs>
+<text x="20" y="30" font-size="15" font-weight="600" fill="var(--ink)">One import pipeline and one nightly job share one SQLite file</text>
+<rect x="20" y="50" width="170" height="56" rx="6" fill="var(--tint)" stroke="var(--axis)"/>
+<text x="32" y="74" font-size="13" font-weight="600" fill="var(--ink)">Operator CLI</text>
+<text x="32" y="92" font-size="11.5" fill="var(--muted)">cli.py import / rejects</text>
+<rect x="220" y="50" width="170" height="56" rx="6" fill="var(--tint)" stroke="var(--axis)"/>
+<text x="232" y="74" font-size="13" font-weight="600" fill="var(--ink)">Cron 02:00</text>
+<text x="232" y="92" font-size="11.5" fill="var(--muted)">jobs/nightly.py</text>
+<rect x="420" y="50" width="150" height="56" rx="6" fill="var(--tint)" stroke="var(--axis)"/>
+<text x="432" y="74" font-size="13" font-weight="600" fill="var(--ink)">Vendor SFTP</text>
+<text x="432" y="92" font-size="11.5" fill="var(--muted)">daily CSV drops</text>
+<rect x="590" y="50" width="150" height="56" rx="6" fill="var(--tint)" stroke="var(--axis)"/>
+<text x="602" y="74" font-size="13" font-weight="600" fill="var(--ink)">Weather API</text>
+<text x="602" y="92" font-size="11.5" fill="var(--muted)">daily mean temp</text>
+<rect x="20" y="140" width="550" height="150" rx="10" fill="none" stroke="var(--axis)" stroke-dasharray="6 4"/>
+<text x="32" y="160" font-size="11.5" fill="var(--muted)">meter-ingest</text>
+<rect x="40" y="175" width="230" height="56" rx="6" fill="var(--tint)" stroke="var(--axis)"/>
+<text x="52" y="199" font-size="13" font-weight="600" fill="var(--ink)">ImportPipeline</text>
+<text x="52" y="217" font-size="11.5" fill="var(--muted)">fetch, parse, validate, enrich, upsert</text>
+<rect x="300" y="175" width="250" height="56" rx="6" fill="var(--tint)" stroke="var(--axis)"/>
+<text x="312" y="199" font-size="13" font-weight="600" fill="var(--ink)">Reconciler</text>
+<text x="312" y="217" font-size="11.5" fill="var(--muted)">sum per meter into daily usage</text>
+<rect x="150" y="320" width="420" height="56" rx="6" fill="var(--accent)" fill-opacity="0.12" stroke="var(--accent)" stroke-width="2"/>
+<text x="162" y="344" font-size="13" font-weight="600" fill="var(--ink)">SQLite (INGEST_DB_PATH)</text>
+<text x="162" y="362" font-size="11.5" fill="var(--muted)">meter_readings · rejected_readings · daily_usage</text>
+<line x1="100" y1="106" x2="100" y2="175" stroke="var(--axis)" marker-end="url(#x-arrow)"/>
+<line x1="300" y1="106" x2="400" y2="175" stroke="var(--axis)" marker-end="url(#x-arrow)"/>
+<line x1="495" y1="106" x2="250" y2="175" stroke="var(--axis)" marker-end="url(#x-arrow)"/>
+<line x1="665" y1="106" x2="270" y2="200" stroke="var(--axis)" marker-end="url(#x-arrow)"/>
+<line x1="155" y1="231" x2="250" y2="320" stroke="var(--axis)" marker-end="url(#x-arrow)"/>
+<line x1="425" y1="231" x2="425" y2="320" stroke="var(--axis)" marker-end="url(#x-arrow)"/>
+</svg></div>
+  <ul class="notes"><li>Weather answers are memoised in-process with lru_cache; there is no Redis.</li></ul>
+</section>
+
+<section class="panel" id="p-sequence" hidden>
+  <p class="lead">Per file: fetch, parse, validate, store rejects, enrich, upsert, commit.</p>
+  <div class="figure"><svg viewBox="0 0 760 350" role="img" aria-label="Each file commits on its own after the upsert">
+<defs><marker id="x-arrow" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse"><path d="M0 0L10 5L0 10z" fill="var(--axis)"/></marker></defs>
+<text x="20" y="30" font-size="15" font-weight="600" fill="var(--ink)">Each file commits on its own after the upsert</text>
+<line x1="72" y1="90" x2="72" y2="330" stroke="var(--grid)" stroke-dasharray="4 4"/>
+<rect x="26" y="50" width="92" height="40" rx="6" fill="var(--tint)" stroke="var(--axis)"/>
+<text x="72" y="75" text-anchor="middle" font-size="10.5" font-weight="600" fill="var(--ink)">cli.run_import</text>
+<line x1="172" y1="90" x2="172" y2="330" stroke="var(--grid)" stroke-dasharray="4 4"/>
+<rect x="126" y="50" width="92" height="40" rx="6" fill="var(--tint)" stroke="var(--axis)"/>
+<text x="172" y="75" text-anchor="middle" font-size="10.5" font-weight="600" fill="var(--ink)">ImportPipeline</text>
+<line x1="272" y1="90" x2="272" y2="330" stroke="var(--grid)" stroke-dasharray="4 4"/>
+<rect x="226" y="50" width="92" height="40" rx="6" fill="var(--tint)" stroke="var(--axis)"/>
+<text x="272" y="75" text-anchor="middle" font-size="10.5" font-weight="600" fill="var(--ink)">SftpSource</text>
+<line x1="372" y1="90" x2="372" y2="330" stroke="var(--grid)" stroke-dasharray="4 4"/>
+<rect x="326" y="50" width="92" height="40" rx="6" fill="var(--tint)" stroke="var(--axis)"/>
+<text x="372" y="75" text-anchor="middle" font-size="10.5" font-weight="600" fill="var(--ink)">parse/validate</text>
+<line x1="472" y1="90" x2="472" y2="330" stroke="var(--grid)" stroke-dasharray="4 4"/>
+<rect x="426" y="50" width="92" height="40" rx="6" fill="var(--tint)" stroke="var(--axis)"/>
+<text x="472" y="75" text-anchor="middle" font-size="10.5" font-weight="600" fill="var(--ink)">WeatherClient</text>
+<line x1="572" y1="90" x2="572" y2="330" stroke="var(--grid)" stroke-dasharray="4 4"/>
+<rect x="526" y="50" width="92" height="40" rx="6" fill="var(--tint)" stroke="var(--axis)"/>
+<text x="572" y="75" text-anchor="middle" font-size="10.5" font-weight="600" fill="var(--ink)">Repositories</text>
+<line x1="672" y1="90" x2="672" y2="330" stroke="var(--grid)" stroke-dasharray="4 4"/>
+<rect x="626" y="50" width="92" height="40" rx="6" fill="var(--tint)" stroke="var(--axis)"/>
+<text x="672" y="75" text-anchor="middle" font-size="10.5" font-weight="600" fill="var(--ink)">sqlite3</text>
+<line x1="72" y1="125" x2="172" y2="125" stroke="var(--axis)" marker-end="url(#x-arrow)"/>
+<text x="80" y="119" font-size="11.5" fill="var(--muted)">run(day)</text>
+<line x1="172" y1="153" x2="272" y2="153" stroke="var(--axis)" marker-end="url(#x-arrow)"/>
+<text x="180" y="147" font-size="11.5" fill="var(--muted)">fetch(day)</text>
+<line x1="172" y1="181" x2="372" y2="181" stroke="var(--axis)" marker-end="url(#x-arrow)"/>
+<text x="180" y="175" font-size="11.5" fill="var(--muted)">parse_readings(lines)</text>
+<line x1="172" y1="209" x2="372" y2="209" stroke="var(--axis)" marker-end="url(#x-arrow)"/>
+<text x="180" y="203" font-size="11.5" fill="var(--muted)">validate(parsed)</text>
+<line x1="172" y1="237" x2="572" y2="237" stroke="var(--axis)" marker-end="url(#x-arrow)"/>
+<text x="180" y="231" font-size="11.5" fill="var(--muted)">rejects.add(day, ...)</text>
+<line x1="172" y1="265" x2="472" y2="265" stroke="var(--axis)" marker-end="url(#x-arrow)"/>
+<text x="180" y="259" font-size="11.5" fill="var(--muted)">daily_mean via enrich_with_weather</text>
+<line x1="172" y1="293" x2="572" y2="293" stroke="var(--axis)" marker-end="url(#x-arrow)"/>
+<text x="180" y="287" font-size="11.5" fill="var(--muted)">readings.upsert(...)</text>
+<line x1="172" y1="321" x2="672" y2="321" stroke="var(--axis)" marker-end="url(#x-arrow)"/>
+<text x="180" y="315" font-size="11.5" fill="var(--muted)">connection.commit() per file</text>
+</svg></div>
+</section>
+
+<section class="panel" id="p-dataflow" hidden>
+  <p class="lead">Rejects, readings and daily usage each have one writer.</p>
+  <div class="figure"><svg viewBox="0 0 760 330" role="img" aria-label="meter_readings is the store the flow exists to fill">
+<defs><marker id="x-arrow" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse"><path d="M0 0L10 5L0 10z" fill="var(--axis)"/></marker></defs>
+<text x="20" y="30" font-size="15" font-weight="600" fill="var(--ink)">meter_readings is the store the flow exists to fill</text>
+<rect x="20" y="50" width="164" height="40" rx="6" fill="var(--tint)" stroke="var(--axis)"/>
+<text x="32" y="74" font-size="13" font-weight="600" fill="var(--ink)">Vendor SFTP CSV</text>
+<rect x="380" y="50" width="164" height="40" rx="6" fill="var(--tint)" stroke="var(--axis)"/>
+<text x="392" y="74" font-size="13" font-weight="600" fill="var(--ink)">Weather API</text>
+<rect x="20" y="140" width="164" height="40" rx="6" fill="var(--tint)" stroke="var(--axis)"/>
+<text x="32" y="164" font-size="13" font-weight="600" fill="var(--ink)">parse_readings</text>
+<rect x="200" y="140" width="164" height="40" rx="6" fill="var(--tint)" stroke="var(--axis)"/>
+<text x="212" y="164" font-size="13" font-weight="600" fill="var(--ink)">validate</text>
+<rect x="380" y="140" width="164" height="40" rx="6" fill="var(--tint)" stroke="var(--axis)"/>
+<text x="392" y="164" font-size="13" font-weight="600" fill="var(--ink)">enrich_with_weather</text>
+<rect x="560" y="140" width="164" height="40" rx="6" fill="var(--tint)" stroke="var(--axis)"/>
+<text x="572" y="164" font-size="13" font-weight="600" fill="var(--ink)">total_by_meter</text>
+<rect x="20" y="230" width="720" height="80" rx="8" fill="var(--tint)" stroke="var(--axis)"/>
+<rect x="30" y="255" width="220" height="40" rx="6" fill="var(--tint)" stroke="var(--axis)"/>
+<text x="42" y="279" font-size="13" font-weight="600" fill="var(--ink)">rejected_readings</text>
+<rect x="270" y="255" width="220" height="40" rx="6" fill="var(--accent)" fill-opacity="0.12" stroke="var(--accent)" stroke-width="2"/>
+<text x="282" y="279" font-size="13" font-weight="600" fill="var(--ink)">meter_readings</text>
+<rect x="510" y="255" width="220" height="40" rx="6" fill="var(--tint)" stroke="var(--axis)"/>
+<text x="522" y="279" font-size="13" font-weight="600" fill="var(--ink)">daily_usage</text>
+<line x1="102" y1="90" x2="102" y2="140" stroke="var(--axis)" marker-end="url(#x-arrow)"/>
+<line x1="184" y1="160" x2="200" y2="160" stroke="var(--axis)" marker-end="url(#x-arrow)"/>
+<line x1="364" y1="160" x2="380" y2="160" stroke="var(--axis)" marker-end="url(#x-arrow)"/>
+<line x1="462" y1="90" x2="462" y2="140" stroke="var(--axis)" marker-end="url(#x-arrow)"/>
+<line x1="462" y1="180" x2="380" y2="255" stroke="var(--axis)" marker-end="url(#x-arrow)"/>
+<text x="388" y="217" font-size="11.5" fill="var(--muted)">upsert</text>
+<line x1="282" y1="180" x2="140" y2="255" stroke="var(--axis)" marker-end="url(#x-arrow)"/>
+<text x="148" y="217" font-size="11.5" fill="var(--muted)">rejects</text>
+<line x1="642" y1="180" x2="620" y2="255" stroke="var(--axis)" marker-end="url(#x-arrow)"/>
+<text x="628" y="217" font-size="11.5" fill="var(--muted)">write</text>
+</svg></div>
+</section>
+
+<section class="panel" id="p-dependencies" hidden>
+  <p class="lead">ingest/ with cli.py and jobs/nightly.py as entry points.</p>
+  <div class="dep-bar">
+    <div class="search">
+      <input id="q" type="search" placeholder="Find a function, method or class…" autocomplete="off" aria-label="Find a symbol">
+      <div id="results" hidden></div>
+    </div>
+    <div class="opts">
+      <label><input id="opt-refs" type="checkbox" checked> count references (partial, callbacks, wiring)</label>
+      <label><input id="opt-classes" type="checkbox" checked> include classes</label>
+    </div>
+    <span class="sub" id="totals"></span>
+  </div>
+  <div class="layout">
+    <aside>
+      <section><h2>Entry points</h2><div class="list" id="entries"></div></section>
+      <section><h2>Most depended on</h2><div class="list" id="fanin"></div></section>
+      <section><h2>Widest ripple</h2><div class="list" id="ripple-top"></div></section>
+    </aside>
+    <div class="dep-main">
+      <div class="card" id="sel"></div>
+      <section>
+        <h2>Neighbourhood · two hops each way</h2>
+        <div class="graph-wrap"><svg id="graph" role="img" aria-label="Callers and callees of the selected symbol"></svg></div>
+        <div class="legend"><span><i style="border-color:var(--caller)"></i>caller side</span><span><i style="border-color:var(--callee)"></i>callee side</span><span><i style="border-color:var(--muted);border-top-style:dashed"></i>reference or inferred</span><span>click a box to re-centre</span></div>
+      </section>
+      <div class="cols">
+        <section class="card"><h2>Ripple: what a change here can break</h2><div class="tbl" id="up"></div></section>
+        <section class="card"><h2>Depends on: what can break this</h2><div class="tbl" id="down"></div></section>
+      </div>
+    </div>
+  </div>
+</section>
+<script>
+const VIEWS = ["context", "sequence", "dataflow", "dependencies"];
+let walkLoaded = false;
+function show() {
+  const name = VIEWS.includes(location.hash.slice(1)) ? location.hash.slice(1) : VIEWS[0];
+  for (const v of VIEWS) document.getElementById("p-" + v).hidden = v !== name;
+  document.querySelectorAll("nav a").forEach(a => { if (a.getAttribute("href") === "#" + name) a.setAttribute("aria-current", "page"); else a.removeAttribute("aria-current"); });
+  const src = document.getElementById("archify-src");
+  if (name === "walkthrough" && src && !walkLoaded) {
+    const bytes = Uint8Array.from(atob(src.textContent.trim()), c => c.charCodeAt(0));
+    document.getElementById("walk-frame").srcdoc = new TextDecoder().decode(bytes);
+    walkLoaded = true;
+  }
+}
+window.addEventListener("hashchange", show);
+document.addEventListener("click", e => {
+  const b = e.target.closest("[data-goto]");
+  if (b) document.getElementById(b.dataset.goto).scrollIntoView({ behavior: matchMedia("(prefers-reduced-motion: reduce)").matches ? "auto" : "smooth", block: "start" });
+});
+show();
+</script>
+<script>
+const GRAPH = {"nodes":[{"id":"db.connect","module":"db","kind":"function","name":"connect","path":"ingest/db.py","line":5,"loc":3,"doc":"The ingest database: one SQLite file at INGEST_DB_PATH.","entry":false},{"id":"enrich.enrich_with_weather","module":"enrich","kind":"function","name":"enrich_with_weather","path":"ingest/enrich.py","line":7,"loc":2,"doc":"","entry":false},{"id":"models.Reading","module":"models","kind":"class","name":"Reading","path":"ingest/models.py","line":6,"loc":6,"doc":"","entry":false},{"id":"models.Rejected","module":"models","kind":"class","name":"Rejected","path":"ingest/models.py","line":15,"loc":3,"doc":"","entry":false},{"id":"parse.parse_readings","module":"parse","kind":"function","name":"parse_readings","path":"ingest/parse.py","line":7,"loc":10,"doc":"Vendor CSV rows `meter_id,site,taken_at,kwh` into readings; unparseable rows become rejects.","entry":false},{"id":"pipeline.ImportPipeline","module":"pipeline","kind":"class","name":"ImportPipeline","path":"ingest/pipeline.py","line":14,"loc":18,"doc":"","entry":false},{"id":"pipeline.ImportPipeline.run","module":"pipeline","kind":"method","name":"ImportPipeline.run","path":"ingest/pipeline.py","line":21,"loc":11,"doc":"Import one day's files; each file is its own transaction, so a retry redoes only the failed file.","entry":false},{"id":"reconcile.total_by_meter","module":"reconcile","kind":"function","name":"total_by_meter","path":"ingest/reconcile.py","line":9,"loc":5,"doc":"","entry":false},{"id":"reconcile.Reconciler","module":"reconcile","kind":"class","name":"Reconciler","path":"ingest/reconcile.py","line":17,"loc":10,"doc":"","entry":false},{"id":"reconcile.Reconciler.run","module":"reconcile","kind":"method","name":"Reconciler.run","path":"ingest/reconcile.py","line":22,"loc":5,"doc":"","entry":false},{"id":"repositories.ReadingsRepository","module":"repositories","kind":"class","name":"ReadingsRepository","path":"ingest/repositories.py","line":9,"loc":14,"doc":"","entry":false},{"id":"repositories.ReadingsRepository.upsert","module":"repositories","kind":"method","name":"ReadingsRepository.upsert","path":"ingest/repositories.py","line":12,"loc":6,"doc":"","entry":false},{"id":"repositories.ReadingsRepository.for_day","module":"repositories","kind":"method","name":"ReadingsRepository.for_day","path":"ingest/repositories.py","line":19,"loc":4,"doc":"","entry":false},{"id":"repositories.RejectsRepository","module":"repositories","kind":"class","name":"RejectsRepository","path":"ingest/repositories.py","line":26,"loc":13,"doc":"","entry":false},{"id":"repositories.RejectsRepository.add","module":"repositories","kind":"method","name":"RejectsRepository.add","path":"ingest/repositories.py","line":29,"loc":5,"doc":"","entry":false},{"id":"repositories.RejectsRepository.for_day","module":"repositories","kind":"method","name":"RejectsRepository.for_day","path":"ingest/repositories.py","line":35,"loc":4,"doc":"","entry":false},{"id":"repositories.UsageRepository","module":"repositories","kind":"class","name":"UsageRepository","path":"ingest/repositories.py","line":42,"loc":8,"doc":"","entry":false},{"id":"repositories.UsageRepository.write","module":"repositories","kind":"method","name":"UsageRepository.write","path":"ingest/repositories.py","line":45,"loc":5,"doc":"","entry":false},{"id":"sources.SftpSource","module":"sources","kind":"class","name":"SftpSource","path":"ingest/sources.py","line":9,"loc":17,"doc":"Daily CSV drops from the meter vendor's SFTP server, copied down with the system `sftp` client.","entry":false},{"id":"sources.SftpSource.from_env","module":"sources","kind":"method","name":"SftpSource.from_env","path":"ingest/sources.py","line":17,"loc":2,"doc":"","entry":false},{"id":"sources.SftpSource.fetch","module":"sources","kind":"method","name":"SftpSource.fetch","path":"ingest/sources.py","line":20,"loc":6,"doc":"","entry":false},{"id":"validate.validate","module":"validate","kind":"function","name":"validate","path":"ingest/validate.py","line":6,"loc":8,"doc":"","entry":false},{"id":"weather._daily_mean","module":"weather","kind":"function","name":"_daily_mean","path":"ingest/weather.py","line":10,"loc":3,"doc":"","entry":false},{"id":"weather.WeatherClient","module":"weather","kind":"class","name":"WeatherClient","path":"ingest/weather.py","line":16,"loc":11,"doc":"Daily mean temperature per site from the weather API; answers are memoised in-process.","entry":false},{"id":"weather.WeatherClient.from_env","module":"weather","kind":"method","name":"WeatherClient.from_env","path":"ingest/weather.py","line":22,"loc":2,"doc":"","entry":false},{"id":"weather.WeatherClient.daily_mean","module":"weather","kind":"method","name":"WeatherClient.daily_mean","path":"ingest/weather.py","line":25,"loc":2,"doc":"","entry":false},{"id":"cli.run_import","module":"cli","kind":"function","name":"run_import","path":"cli.py","line":13,"loc":7,"doc":"","entry":true},{"id":"cli.show_rejects","module":"cli","kind":"function","name":"show_rejects","path":"cli.py","line":22,"loc":3,"doc":"","entry":true},{"id":"jobs.nightly.nightly_reconcile","module":"jobs.nightly","kind":"function","name":"nightly_reconcile","path":"jobs/nightly.py","line":10,"loc":4,"doc":"","entry":true}],"edges":[{"from":"enrich.enrich_with_weather","to":"models.Reading","kind":"ref","inferred":false},{"from":"enrich.enrich_with_weather","to":"weather.WeatherClient","kind":"ref","inferred":false},{"from":"enrich.enrich_with_weather","to":"weather.WeatherClient.daily_mean","kind":"call","inferred":false},{"from":"parse.parse_readings","to":"models.Reading","kind":"call","inferred":false},{"from":"parse.parse_readings","to":"models.Rejected","kind":"call","inferred":false},{"from":"pipeline.ImportPipeline.run","to":"sources.SftpSource.fetch","kind":"call","inferred":false},{"from":"pipeline.ImportPipeline.run","to":"parse.parse_readings","kind":"call","inferred":false},{"from":"pipeline.ImportPipeline.run","to":"validate.validate","kind":"call","inferred":false},{"from":"pipeline.ImportPipeline.run","to":"repositories.RejectsRepository.add","kind":"call","inferred":false},{"from":"pipeline.ImportPipeline.run","to":"repositories.ReadingsRepository.upsert","kind":"call","inferred":false},{"from":"pipeline.ImportPipeline.run","to":"enrich.enrich_with_weather","kind":"call","inferred":false},{"from":"reconcile.Reconciler.run","to":"reconcile.total_by_meter","kind":"call","inferred":false},{"from":"reconcile.Reconciler.run","to":"repositories.UsageRepository.write","kind":"call","inferred":false},{"from":"reconcile.Reconciler.run","to":"repositories.ReadingsRepository.for_day","kind":"call","inferred":false},{"from":"repositories.ReadingsRepository.upsert","to":"models.Reading","kind":"ref","inferred":false},{"from":"repositories.RejectsRepository.add","to":"models.Rejected","kind":"ref","inferred":false},{"from":"validate.validate","to":"models.Reading","kind":"ref","inferred":false},{"from":"validate.validate","to":"models.Rejected","kind":"call","inferred":false},{"from":"weather.WeatherClient.daily_mean","to":"weather._daily_mean","kind":"call","inferred":false},{"from":"cli.run_import","to":"db.connect","kind":"call","inferred":false},{"from":"cli.run_import","to":"pipeline.ImportPipeline","kind":"call","inferred":false},{"from":"cli.run_import","to":"sources.SftpSource.from_env","kind":"call","inferred":false},{"from":"cli.run_import","to":"weather.WeatherClient.from_env","kind":"call","inferred":false},{"from":"cli.run_import","to":"repositories.ReadingsRepository","kind":"call","inferred":false},{"from":"cli.run_import","to":"repositories.RejectsRepository","kind":"call","inferred":false},{"from":"cli.run_import","to":"sources.SftpSource","kind":"ref","inferred":false},{"from":"cli.run_import","to":"weather.WeatherClient","kind":"ref","inferred":false},{"from":"cli.run_import","to":"pipeline.ImportPipeline.run","kind":"call","inferred":false},{"from":"cli.show_rejects","to":"repositories.RejectsRepository.for_day","kind":"call","inferred":false},{"from":"cli.show_rejects","to":"repositories.RejectsRepository","kind":"call","inferred":false},{"from":"cli.show_rejects","to":"db.connect","kind":"call","inferred":false},{"from":"jobs.nightly.nightly_reconcile","to":"db.connect","kind":"call","inferred":false},{"from":"jobs.nightly.nightly_reconcile","to":"reconcile.Reconciler","kind":"call","inferred":false},{"from":"jobs.nightly.nightly_reconcile","to":"repositories.ReadingsRepository","kind":"call","inferred":false},{"from":"jobs.nightly.nightly_reconcile","to":"repositories.UsageRepository","kind":"call","inferred":false},{"from":"jobs.nightly.nightly_reconcile","to":"reconcile.Reconciler.run","kind":"call","inferred":false}]};
+const SOURCE_URL = ""; // prefix joined with a node's repo path, "" for no links
+const byId = new Map(GRAPH.nodes.map(n => [n.id, n]));
+const $ = id => document.getElementById(id);
+const short = id => id;
+const pathOf = n => n.path;
+const opts = { refs: true, classes: true };
+let out, inn;
+
+function rebuild() {
+  out = new Map(); inn = new Map();
+  for (const n of GRAPH.nodes) { out.set(n.id, []); inn.set(n.id, []); }
+  for (const e of GRAPH.edges) {
+    if (!opts.refs && e.kind === "ref") continue;
+    const a = byId.get(e.from), b = byId.get(e.to);
+    if (!a || !b) continue;
+    if (!opts.classes && (a.kind === "class" || b.kind === "class")) continue;
+    out.get(e.from).push(e); inn.get(e.to).push(e);
+  }
+}
+function reach(start, adj, key) {
+  const depth = new Map([[start, 0]]), q = [start];
+  while (q.length) { const id = q.shift(); for (const e of adj.get(id)) { const nx = e[key]; if (!depth.has(nx)) { depth.set(nx, depth.get(id) + 1); q.push(nx); } } }
+  depth.delete(start); return depth;
+}
+const upOf = id => reach(id, inn, "from"), downOf = id => reach(id, out, "to");
+
+function listButtons(el, rows) {
+  el.replaceChildren(...rows.map(([id, n]) => { const b = document.createElement("button"); b.title = short(id);
+    b.innerHTML = `<span>${byId.get(id).name}</span><span class="n">${n}</span>`; b.onclick = () => select(id); return b; }));
+}
+function sidebar() {
+  listButtons($("entries"), GRAPH.nodes.filter(n => n.entry).map(n => [n.id, downOf(n.id).size]));
+  const fan = GRAPH.nodes.filter(n => opts.classes || n.kind !== "class").map(n => [n.id, inn.get(n.id).length]).sort((a, b) => b[1] - a[1]).slice(0, 12);
+  listButtons($("fanin"), fan);
+  const rip = GRAPH.nodes.filter(n => n.kind !== "class" && !n.entry).map(n => [n.id, upOf(n.id).size]).sort((a, b) => b[1] - a[1]).slice(0, 12);
+  listButtons($("ripple-top"), rip);
+  $("totals").textContent = `${GRAPH.nodes.length} symbols · ${GRAPH.edges.length} edges, static analysis`;
+}
+
+function table(el, depths, color) {
+  if (!depths.size) { el.innerHTML = `<p class="empty">Nothing in the package.</p>`; return; }
+  const rows = [...depths].sort((a, b) => a[1] - b[1] || a[0].localeCompare(b[0]));
+  const t = document.createElement("table");
+  t.innerHTML = `<thead><tr><th>hop</th><th>symbol</th><th>module</th></tr></thead>`;
+  const tb = document.createElement("tbody");
+  for (const [id, d] of rows) { const n = byId.get(id); const tr = document.createElement("tr");
+    tr.innerHTML = `<td class="d" style="color:${color}">${d}</td><td></td><td class="mono" style="color:var(--muted)">${n.module}</td>`;
+    const b = document.createElement("button"); b.textContent = n.name; b.title = n.doc || short(id); b.onclick = () => select(id); tr.children[1].append(b); tb.append(tr); }
+  t.append(tb); el.replaceChildren(t);
+}
+
+const esc = s => s.replace(/[&<>"]/g, c => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c]));
+function select(id) {
+  const n = byId.get(id); if (!n) return;
+  const up = upOf(id), down = downOf(id);
+  const entries = [...up.keys()].filter(k => byId.get(k).entry).map(k => byId.get(k).name);
+  const mods = new Set([...up.keys()].map(k => byId.get(k).module));
+  $("sel").innerHTML = `<span class="chip">${n.kind}</span>
+    <div class="sel-name">${esc(n.name)}</div>
+    <div class="meta"><span class="mono">${esc(short(id))}</span>${SOURCE_URL ? `<a href="${SOURCE_URL}${pathOf(n)}#L${n.line}" target="_blank" rel="noopener">${pathOf(n)}:${n.line}</a>` : `<span class="mono">${pathOf(n)}:${n.line}</span>`}<span>${n.loc} lines</span></div>
+    ${n.doc ? `<p class="doc">${esc(n.doc)}</p>` : ""}
+    <div class="stats">
+      <div class="stat caller"><b>${inn.get(id).length}</b><span>direct callers</span></div>
+      <div class="stat caller"><b>${up.size}</b><span>transitive dependants in ${mods.size} modules</span></div>
+      <div class="stat callee"><b>${out.get(id).length}</b><span>direct callees</span></div>
+      <div class="stat entry"><b>${entries.length}</b><span>${entries.length ? "commands reach it: " + entries.join(", ") : "commands reach it"}</span></div>
+    </div>`;
+  table($("up"), up, "var(--caller)"); table($("down"), down, "var(--callee)");
+  draw(id);
+  $("q").value = ""; $("results").hidden = true;
+}
+
+function draw(id) {
+  const MAX = 12, W = 196, H = 26, GAPX = 44, GAPY = 8, PAD = 16;
+  const ring = (start, adj, key) => { const d1 = [...new Set(adj.get(start).map(e => e[key]))].filter(x => x !== start);
+    const d2 = [...new Set(d1.flatMap(x => adj.get(x).map(e => e[key])))].filter(x => x !== start && !d1.includes(x)); return [d1, d2]; };
+  const [u1, u2] = ring(id, inn, "from"), [d1, d2] = ring(id, out, "to");
+  const cols = [u2, u1, [id], d1, d2].map(c => ({ ids: c.slice(0, MAX), more: Math.max(0, c.length - MAX) }));
+  const rows = Math.max(...cols.map(c => c.ids.length + (c.more ? 1 : 0)), 1);
+  const width = PAD * 2 + 5 * W + 4 * GAPX, height = PAD * 2 + 22 + rows * (H + GAPY);
+  const pos = new Map();
+  cols.forEach((c, ci) => { const top = PAD + 22 + (rows - c.ids.length - (c.more ? 1 : 0)) * (H + GAPY) / 2;
+    c.ids.forEach((nid, ri) => { if (!pos.has(nid) || ci === 2) pos.set(nid, { x: PAD + ci * (W + GAPX), y: top + ri * (H + GAPY), ci }); }); });
+  const svg = $("graph"); svg.setAttribute("viewBox", `0 0 ${width} ${height}`); svg.setAttribute("width", width); svg.setAttribute("height", height);
+  const heads = ["callers, 2 hops", "direct callers", "selected", "direct callees", "callees, 2 hops"];
+  let s = heads.map((h, i) => `<text x="${PAD + i * (W + GAPX) + W / 2}" y="${PAD + 8}" text-anchor="middle" font-size="11" fill="var(--muted)" style="font-family:var(--sans)">${h}</text>`).join("");
+  const edgeSet = [];
+  for (const e of GRAPH.edges) { if (!out.get(e.from).includes(e)) continue; const a = pos.get(e.from), b = pos.get(e.to); if (!a || !b) continue;
+    if (b.ci - a.ci === 1) edgeSet.push([a, b, e]); }
+  for (const [a, b, e] of edgeSet) { const x1 = a.x + W, y1 = a.y + H / 2, x2 = b.x, y2 = b.y + H / 2, mx = (x1 + x2) / 2;
+    const col = b.ci <= 2 ? "var(--caller)" : "var(--callee)";
+    s += `<path d="M${x1} ${y1}C${mx} ${y1} ${mx} ${y2} ${x2} ${y2}" fill="none" stroke="${col}" stroke-opacity=".7" stroke-width="1.2" ${e.kind !== "call" || e.inferred ? 'stroke-dasharray="4 3"' : ""}/>`; }
+  cols.forEach((c, ci) => { c.ids.forEach(nid => { const p = pos.get(nid); if (p.ci !== ci) return; const n = byId.get(nid);
+      const fill = ci === 2 ? "var(--accent-soft)" : ci < 2 ? "var(--caller-soft)" : "var(--callee-soft)";
+      const stroke = ci === 2 ? "var(--accent)" : ci < 2 ? "var(--caller)" : "var(--callee)";
+      const label = n.name.length > 26 ? n.name.slice(0, 25) + "…" : n.name;
+      s += `<g class="node" data-id="${nid}" style="cursor:pointer"><title>${esc(short(nid))}${n.doc ? "\n" + esc(n.doc) : ""}</title><rect x="${p.x}" y="${p.y}" width="${W}" height="${H}" rx="5" fill="${fill}" stroke="${stroke}" stroke-width="${ci === 2 ? 2 : 1}"/><text x="${p.x + 8}" y="${p.y + 17}" font-size="11.5" fill="var(--ink)">${esc(label)}</text></g>`; });
+    if (c.more) { const y = PAD + 22 + (rows - c.ids.length - 1) * (H + GAPY) / 2 + c.ids.length * (H + GAPY);
+      s += `<text x="${PAD + ci * (W + GAPX) + 8}" y="${y + 17}" font-size="11" fill="var(--muted)">+${c.more} more (see lists below)</text>`; } });
+  svg.innerHTML = s;
+  svg.querySelectorAll(".node").forEach(g => g.addEventListener("click", () => select(g.dataset.id)));
+}
+
+const q = $("q"), res = $("results");
+q.addEventListener("input", () => {
+  const term = q.value.trim().toLowerCase(); if (!term) { res.hidden = true; return; }
+  const hits = GRAPH.nodes.filter(n => n.id.toLowerCase().includes(term)).sort((a, b) => (a.name.toLowerCase().startsWith(term) ? 0 : 1) - (b.name.toLowerCase().startsWith(term) ? 0 : 1) || a.name.length - b.name.length).slice(0, 30);
+  res.replaceChildren(...hits.map(n => { const b = document.createElement("button"); b.innerHTML = `<span class="mono">${esc(n.name)}</span> <span class="sub">${n.module}</span>`; b.onclick = () => select(n.id); return b; }));
+  res.hidden = !hits.length;
+});
+q.addEventListener("keydown", e => { if (e.key === "Enter") { const b = res.querySelector("button"); if (b) b.click(); } if (e.key === "Escape") res.hidden = true; });
+document.addEventListener("click", e => { if (!e.target.closest(".search")) res.hidden = true; });
+let current = "pipeline.ImportPipeline.run" || (GRAPH.nodes.find(n => n.entry) || GRAPH.nodes[0]).id;
+const refresh = () => { rebuild(); sidebar(); select(current); };
+$("opt-refs").addEventListener("change", e => { opts.refs = e.target.checked; refresh(); });
+$("opt-classes").addEventListener("change", e => { opts.classes = e.target.checked; refresh(); });
+const origSelect = select;
+select = id => { current = id; origSelect(id); };
+refresh();
+</script>
