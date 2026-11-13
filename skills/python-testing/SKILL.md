@@ -38,7 +38,7 @@ Same rule applies to production files unless project convention explicitly uses 
 
 ## Test docstring format
 
-Prefer GIVEN/WHEN/THEN docstrings for behavior-heavy tests. If a project requires test docstrings, use this format:
+Every test you add or change gets a GIVEN/WHEN/THEN docstring, even when older tests in the same file have none; do not stop part-way through a file. Format:
 
 ```python
 # ✅ CORRECT
@@ -59,6 +59,21 @@ async def test_foo() -> None:
 ```
 
 Opening `"""` is alone on its line. No blank lines between GIVEN/WHEN/THEN. Closing `"""` on its own line.
+
+## Thin conftest.py
+
+Keep `tests/conftest.py` to session-wide setup plus a `pytest_plugins` list; fixtures live in topic modules under `tests/fixtures/` (one per area), not in nested `conftest.py` files:
+
+```python
+# tests/conftest.py
+pytest_plugins = [
+    "tests.fixtures.accounts",
+    "tests.fixtures.orders",
+    "tests.fixtures.payments",
+]
+```
+
+Why: one place lists every fixture source; a fixture is found by its topic file, not by walking directories for `conftest.py`.
 
 ## Test markers
 

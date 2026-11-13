@@ -174,11 +174,11 @@ Mark an issue as resolved
 **Examples:**
 
 ```bash
-# Resolve immediately (no regression tracking)
+# Resolve now — any new event reopens it as a regression
 sentry issue resolve CLI-G5
 
-# Resolve in a specific release — future events on newer releases are
-# regression-flagged
+# Resolve in a specific release — only events from newer releases
+# reopen it as a regression; events from older releases are ignored
 sentry issue resolve CLI-G5 --in 0.26.1
 
 # Monorepo-style releases work too (no special parsing)

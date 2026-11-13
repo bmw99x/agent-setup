@@ -1,6 +1,6 @@
 ---
 name: production-python-style
-description: Use when writing or reviewing Python in a Python backend repo — naming, function size, signatures, constants, exceptions, underscore-private names, bare `*` keyword-only markers, `# fmt: skip`, primitive obsession, or code that reads like a notebook/data-science script rather than production code.
+description: "Use when writing or reviewing Python in a Python backend repo — naming, function size, signatures, constants, exceptions, underscore-private names, bare `*` keyword-only markers, `# fmt: skip`, primitive obsession, or code that reads like a notebook/data-science script rather than production code."
 ---
 
 # Production Python Style
@@ -28,6 +28,8 @@ Review feedback that keeps recurring. Treat as defaults; deviate only with a rea
 16. **Group related functions into a class** when several share state, a domain, or a cache/I-O concern (see `design-patterns-pragmatic`).
 17. **Raise domain errors, not built-ins.** No new `raise ValueError/KeyError/TypeError/RuntimeError(...)` in app code: raise a named error from the package's `exceptions.py` (`OrderValidationError`, `InvalidBodyError`), grouped under one base per package. Wrap a caught library error with `raise ... from error`. The HTTP layer maps the domain bases to statuses with no catch-all `except ValueError`, so a stray library error is a 500, not a fake 422. Exception: pydantic validators keep raising `ValueError`/`PydanticCustomError` (framework contract).
 18. **Name the credential chain.** `ChainedTokenCredential(ManagedIdentityCredential(), AzureCliCredential())`, not `DefaultAzureCredential()`. Why: the default also takes whatever the host environment holds, so a forgotten local flag can run with production credentials.
+19. **Read attributes where they are used; don't unpack them.** No `a, b, c = request.a, request.b, request.c` or `run, table = self.open(request.id), request.table`: write `request.a` at the point of use, or bind one well-named local on its own line when the value is reused and the name adds meaning. Build multi-field values with keywords (`RunState(run_id=..., status_code=...)`), not positionally. Genuine tuple returns and iteration (`for key, value in d.items()`, `lon, lat = point`) are fine. Why: reviewers flag the habit across whole MRs; it hides where each value comes from.
+20. **Rule of three; no single-caller wrappers.** Three functions differing only by one argument (an orchestrator, a request type) become one helper that takes it. A private method or module function that only forwards to another call (`_request` → `_send(...).json()`, `cli.x_request()` → `XRequest()`) goes: call the target directly. Why: YAGNI layers are what reviewers delete first.
 
 ## Example
 
@@ -61,4 +63,6 @@ def summarise_order_value(orders: Orders, options: SummaryOptions) -> Summary:
 - [ ] No `TypeVar`/`Generic[` where PEP 695 works; no `to_thread`/`Lock`/`create_task` without a stated gain; no local logger setup.
 - [ ] Signatures with more than ~4 parameters use a parameter object.
 - [ ] grep `DefaultAzureCredential`: none added.
+- [ ] `git diff -U0 | grep -E '^\+\s+\w+(, \w+)+ = \(?\w+\.\w+, '`: no positional unpacking of one object's attributes.
+- [ ] No three near-identical functions; no wrapper whose body only forwards to one call.
 - [ ] `git diff -U0 | grep -E '^\+.*raise (ValueError|KeyError|TypeError|RuntimeError)\('`: none outside pydantic validators.

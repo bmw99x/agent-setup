@@ -191,7 +191,7 @@ function UserProfile({ user, theme }) {
 
 **Impact: MEDIUM (restores memoization by using a constant for default value)**
 
-When memoized component has a default value for some non-primitive optional parameter, such as an array, function, or object, calling the component without that parameter results in broken memoization. This is because new value instances are created on every rerender, and they do not pass strict equality comparison in `memo()`.
+When memoized component has a default value for some non-primitive optional parameter, such as an array, function, or object, calling the component without that parameter creates a new value instance on every render. `memo()` itself still holds (it compares the props passed in, and an omitted prop is `undefined` each time), but anything downstream that receives the default (a memoized child, a `useEffect`/`useMemo` dependency) sees a change every render.
 
 To address this issue, extract the default value into a constant.
 

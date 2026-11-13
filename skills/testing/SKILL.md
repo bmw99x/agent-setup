@@ -133,7 +133,7 @@ const mockResponse = {
 - Assertion checks for `*-mock` test IDs
 - Methods only called in test files
 - Mock setup is >50% of test
-- Test fails when you remove mock
+- Assertion only passes because of what the mock returns (a mock for speed or isolation, like Anti-Pattern 3's fix, is fine)
 - Can't explain why mock is needed
 - Mocking "just to be safe"
 - `import` statement inside a test function or fixture (all imports at top of file)

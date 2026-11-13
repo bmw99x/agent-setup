@@ -74,7 +74,7 @@ class ProductUpsertMany:
 ## Settings
 
 - `pydantic-settings` `BaseSettings` for config classes (e.g. `app/config/settings.py`)
-- `.env` loaded via `find_dotenv(".env")`
+- Locate `.env` relative to the project (e.g. `find_dotenv` or a `Path` from the settings module), not the current working directory
 - Env vars as single source of config — no ad-hoc secrets hierarchy
 
 ## Forbidden

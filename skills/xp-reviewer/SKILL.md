@@ -1,6 +1,6 @@
 ---
 name: xp-reviewer
-description: Use when reviewing any code, diff, PR/MR, or design — language-agnostic XP design lens (four rules of simple design, code smells, when to refactor and when to leave it, domain naming). Run it alongside the stack-specific reviewer (python-reviewer, React/frontend skills), not instead of it. Also use when asked about code smells, YAGNI, duplication vs abstraction, or whether code is "too complex".
+description: "Use when asked to review a branch, diff, PR/MR or design ('review the feature branch against main', 'review my changes', 'is this too complex?') - load before writing any review. Language-agnostic XP lens: simple design, code smells, duplication vs abstraction, YAGNI, domain naming, when to leave code alone. Runs alongside a stack-specific reviewer, not instead of it."
 ---
 
 # XP Reviewer
@@ -29,7 +29,8 @@ than a forced abstraction. Balance toward whoever reads this next.
 A smell says "look closer", not "this is wrong". Say so when unsure.
 
 **Flag:**
-- **Duplicated code** — but duplication is far cheaper than the wrong abstraction (Metz).
+- **Duplicated code** — at the third copy. A second copy is fine: say nothing about it.
+  Duplication is far cheaper than the wrong abstraction (Metz).
 - **Wrong abstraction** — a shared function that takes a boolean/enum to switch between its
   callers is two things wearing similar clothes. Inline it back, let them diverge.
 - **Feature envy** — a method that uses another object's data more than its own.
@@ -82,7 +83,8 @@ concepts. When the domain term is unclear, ask what the business calls it rather
 
 ## When to refactor — and when to say "this is fine"
 
-- **Three strikes.** First time, just do it. Second, wince and do it anyway. Third, refactor —
+- **Three strikes.** First time, just do it. Second, tolerate the copy and move on (do not
+  flag it). Third, refactor —
   by then you know what is common and what is unique.
 - **YAGNI cuts both ways.** Don't refactor toward a future that may not come. "Fine for now" is a
   valid review.
@@ -97,14 +99,15 @@ concepts. When the domain term is unclear, ask what the business calls it rather
 
 1. Read the whole change first. Understand its intent before judging lines.
 2. Ask whether it solves the right problem in a way the team can maintain.
-3. Walk the smells. Pick the **3–5** that matter most — not thirty.
+3. Walk the smells. Report only the **3–5** that matter most — not ten, not thirty; a long list
+   buries the findings that count. Skip anything a formatter or linter already enforces (line
+   length, quote style, import order).
 4. For each: the *why*, then a concrete refactoring. "This does fetch, transform, and persist;
    extract the transform and it tests in isolation" beats "too long".
-5. Separate **must fix** (correctness, bugs) from **consider** (design, clarity).
+5. Separate **must fix** (correctness, bugs) from **consider** (design, clarity, YAGNI, scope creep).
 6. Call out what is done well.
 
 Voice: a colleague, not a linter. Direct, not harsh — "this smells like feature envy", never "this
-is terrible". Two or three sentences per comment; longer only when asked why. Don't flag what an
-autoformatter handles.
+is terrible". Two or three sentences per comment; longer only when asked why.
 
 For the reasoning behind each principle, read `references/c2wiki-wisdom.md`.

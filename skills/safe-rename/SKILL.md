@@ -1,6 +1,6 @@
 ---
 name: safe-rename
-description: Use when a symbol has been renamed across multiple files and the rename is not yet verified complete — especially when the old name appears as a substring of test function names, fixtures, or other identifiers, or when a rename touched a test suite and the suite still reports green.
+description: "Use for any rename of a function, class, field, flag or term across a codebase ('rename X to Y', finishing a half-done rename) - especially when the old name is a substring of other identifiers (test names, fixtures, docs) or a green suite could hide leftovers. Ensures every reference is renamed and verified, not only exact matches."
 ---
 
 # Safe Rename
@@ -23,7 +23,8 @@ the same tests ran.
 
 Reach for the tool that understands the language first — `mcp__serena__rename_symbol`, IDE/LSP
 rename, `rope`, `gopls`. Text substitution is the fallback for docstrings, comments, and prose the
-symbol tool won't touch.
+symbol tool won't touch. It also skips identifiers that *contain* the name (`test_old_name_*`,
+fixtures): rename those that are about this symbol by hand.
 
 ## The verification contract
 
@@ -42,6 +43,9 @@ grep -rnE "[a-zA-Z]new_name|new_name[a-zA-Z]" --include=*.py .
 # 4. No stragglers, in code OR prose
 grep -rn "old_name" --include=*.py --include=*.md .
 ```
+
+Every hit left by check 4 must be an unrelated identifier that merely contains `old_name` (leave
+it) or a deliberately kept name such as a task entrypoint (say so). Anything else is a straggler.
 
 A dropped count with a green suite is the exact failure this exists for: the tests were not
 renamed-and-broken, they were renamed-and-uncollected.

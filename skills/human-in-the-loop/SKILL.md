@@ -1,6 +1,6 @@
 ---
 name: human-in-the-loop
-description: Use when agent must decide whether to stop for human approval or log-and-continue during software work.
+description: "Use when a task includes a risky or irreversible step - writing to a production or shared database, dropping a column or data, backfilling or rewriting records, deleting an endpoint or field, skipping or weakening failing tests, pushing - especially while the user is away. Decides stop-for-approval vs log-and-continue and what to leave for the user. Everyday ask-or-just-do calls are ben-pair."
 ---
 
 # human-in-the-loop
@@ -25,10 +25,10 @@ Destructive:
 - Delete model, field, endpoint, migration step, public API, config key.
 - Data backfill/transform/drop.
 - Dependency removed/downgraded.
-- History rewrite. Rotate/revoke leaked secret first, then ask.
+- History rewrite. Pushed secret: rotate/revoke first (the one act-before-asking), then ask.
 
 Architecture:
-- Multiple valid paths.
+- Multiple valid architectural paths. Smaller design choices: pick the conventional option, log a `# DECISION:` comment and continue (Soft Checkpoints).
 - Pattern diverges from convention.
 - External integration/provider/webhook/auth changes.
 - ADR-worthy choice.
@@ -50,11 +50,12 @@ Use inline comments only for non-load-bearing decisions:
 
 ```python
 # DECISION: chose selectinload over joinedload — avoids cartesian product on large sets
-# QUESTION: should this return 404 or empty list when no records found?
+# QUESTION: is a 30s timeout enough for the nightly export? kept the existing value
 # ASSUMPTION: missing config means disabled, not error
 ```
 
-Add PR/MR section when any DECISION/QUESTION/ASSUMPTION exists:
+Add PR/MR section when any DECISION/QUESTION/ASSUMPTION exists (no PR/MR, or user away: the
+handoff/questions file the user named):
 
 ```text
 ## Agent decisions
@@ -67,7 +68,8 @@ Add PR/MR section when any DECISION/QUESTION/ASSUMPTION exists:
 ## Defaults
 
 - Prefer closed question with recommendation.
-- Never assume scope expansion.
+- A gate the user's request explicitly covers ("add endpoint X") is approved; anything beyond it is not.
+- Never assume scope expansion. Small improvements to lines you touch: `ben-pair` just-do-it.
 - Never assume destructive action.
 - Never assume feature flag approval.
 - Never treat post-push secret audit as enough; pre-push secret scan mandatory.

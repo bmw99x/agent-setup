@@ -67,8 +67,8 @@ Use `scripts/check_licenses.sh <ecosystem>` (auto-detects if no argument given) 
 
 | Ecosystem | Tool used | Install if missing |
 |---|---|---|
-| npm/yarn/pnpm | `license-checker` | `npx license-checker` (no install needed) |
-| Python (pip/uv/poetry/pipenv) | `pip-licenses` | `pip install pip-licenses --break-system-packages` (sandboxed envs) or note the user should install it in their venv |
+| npm/yarn/pnpm | `license-checker --csv` (project itself excluded) | `npx license-checker` (no install needed) |
+| Python (pip/uv/poetry/pipenv) | stdlib `importlib.metadata`, run with the project interpreter (`$VIRTUAL_ENV`, `.venv`, poetry env) | nothing to install |
 | Rust (cargo) | `cargo-license` | `cargo install cargo-license` |
 | Go | `go-licenses` | `go install github.com/google/go-licenses@latest` |
 | Ruby | `license_finder` | `gem install license_finder` |

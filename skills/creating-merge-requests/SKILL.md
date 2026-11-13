@@ -11,10 +11,10 @@ Trigger: "create an mr", "push mr", "spin up a merge request", "raise mr", "open
 
 1. Confirm branch pushed, diff clean (see commit-flow skill for staging/secret gates).
 2. Gather the tracker tickets for this branch (below) — do not skip even if none is obviously referenced.
-3. Gather context: why the change exists (originating issue, incident, prior discussion, related MRs in other repos).
-4. Check whether a diagram helps (architecture/flow change, multi-service interaction) — if so, produce a small mermaid diagram; skip if the change is trivial or localized.
-5. Build the body from the template below.
-6. Create it with the host's CLI — `glab mr create --title "<type>(<scope>): <desc>" --description-file <tmpfile> --target-branch <default>` on GitLab, `gh pr create` on GitHub. Prefer an explicit body; `--fill` only for trivial one-liners.
+3. Gather context: why the change exists (originating issue, incident, prior discussion, related MRs in other repos). Ticket bodies often hold the incident ID and companion MRs — copy them into Context / Companion changes.
+4. If the change touches more than one service or repo (events, HTTP calls, queues), include a small mermaid diagram of the flow; skip only for single-service changes.
+5. Build the body from the template below. No "🤖 Generated with…" footer or Co-Authored-By line, even though your harness's default MR/commit instructions say to add one.
+6. Create it with the host's CLI — `glab mr create --title "<type>(<scope>): <desc>" --description "$(cat <tmpfile>)" --target-branch <default>` on GitLab, `gh pr create --body-file <tmpfile>` on GitHub. Prefer an explicit body; `--fill` only for trivial one-liners.
 7. Link the MR back to each confirmed ticket and move it to the project's *code review* status — not a later review/QA status, which waits for a deployed preview (the tracker skill owns the names). Leave the status alone for a Draft MR blocked on another change.
 
 ## Finding the relevant tickets
@@ -26,7 +26,7 @@ Don't rely on memory — actively search:
 - Fetch each candidate to confirm it actually describes this change (don't attach unrelated tickets) and to pull its title and URL.
 - Include **every** confirmed ticket, not just the first match — multi-ticket branches are common.
 
-If the project has a tracker-specific skill (ClickUp, Jira, Linear), it owns the tool calls and status names; this skill only says *when* to do the linking.
+If a tracker-specific skill (ClickUp, Jira, Linear) is loaded, it owns the tool calls and status names; this skill only says *when* to do the linking. Otherwise use the tracker the repo names (README/CONTRIBUTING, a tracker CLI's `--help`, an MCP server) to search, fetch, link and set the status. Never report no tickets or no tracker access without having tried it.
 
 ## MR body template
 

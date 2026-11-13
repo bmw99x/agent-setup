@@ -122,7 +122,7 @@ useEffect(() => {
 
 **Impact: MEDIUM-HIGH (automatic deduplication)**
 
-SWR enables request deduplication, caching, and revalidation across component instances.
+SWR enables request deduplication, caching, and revalidation across component instances. If the project already uses React Query (TanStack Query), use that instead: it dedupes the same way. Don't add a second fetching library.
 
 **Incorrect: no deduplication, each instance fetches**
 

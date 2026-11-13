@@ -16,7 +16,7 @@ uv run ty check              # types — must pass clean
 uv run pytest -n auto        # tests — must all pass
 ```
 
-Block on any failure. Fix root cause, not symptom.
+Run all four every time (chain with `;`, not `&&`) and list each result in the review; a failure in one doesn't excuse skipping the rest. Block on any failure; in a review, report the root cause rather than patching it.
 
 ## 2. Type safety
 

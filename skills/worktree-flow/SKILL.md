@@ -1,6 +1,6 @@
 ---
 name: worktree-flow
-description: Use when starting feature/bugfix work, creating isolated branches/worktrees, working in parallel, or avoiding stacked PR/MR dependency chains.
+description: "Use before starting any feature or bugfix branch - including a small fix when the checkout has uncommitted work or an open unmerged MR/PR - and when creating isolated branches or worktrees, working on several things in parallel, or a follow-up must not stack on an unmerged branch."
 ---
 
 # worktree-flow
@@ -9,16 +9,12 @@ Trigger: new feature, bugfix, branch, worktree, parallel work.
 
 ## When
 
-Use for feature/bugfix. Exception: trivial single-file fix on clean checkout.
+Use for feature/bugfix. Exception: trivial single-file fix on a clean checkout with no unmerged work.
 
 ## Topology
 
-- Default: foundation change → merge → fan-out behavior changes from default branch.
-- Foundation from default branch when shared volatile core needed.
-- Behavior PRs/MRs target default branch; no dependency on unmerged behavior PR/MR.
-- Local stack OK for speed; before push, rebase onto default/foundation and verify independent diff.
-- Remote stacked PR/MR chains exception only.
-- Strict one-at-time for auth/security/PII/destructive/data/public-contract work.
+- Branch from the default branch (or a merged/approved foundation); never from an unmerged behavior PR/MR.
+- Foundation vs fan-out, stacking, one-at-a-time work: `slicing`. Push/PR rules: `commit-flow`.
 
 ## Create
 
@@ -26,8 +22,8 @@ Use for feature/bugfix. Exception: trivial single-file fix on clean checkout.
 git worktree add <worktree-path> -b <branch> <base>
 ```
 
-- Base: default branch, or approved foundation.
-- Slug/path: short kebab-case.
+- Base: freshly fetched default branch (`origin/main`), or approved foundation.
+- Path: sibling `../<repo>-<slug>`, or the tool's gitignored dir (`.claude/worktrees/`, `.worktrees/`). Slug: short kebab-case.
 - Branch: project convention.
 
 ## Setup
@@ -46,9 +42,9 @@ git branch -d <branch-name>
 
 ## Rules
 
-- Never nest worktrees.
+- Never create a worktree inside another worktree.
+- If worktree creation fails, fix the path; never do the work in the original checkout and never reset it.
 - One branch in one worktree only.
 - One task = one worktree = one independent PR/MR when practical.
 - Parallel DB/resource work: isolate ports, schemas, queues, caches as needed.
 - Before push: inspect base + diff vs target; do not publish accidental local stack.
-- Never copy secrets into committed HTTP files, docs, fixtures, examples.

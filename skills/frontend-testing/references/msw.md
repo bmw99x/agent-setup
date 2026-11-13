@@ -9,6 +9,8 @@ import { handlers } from "./handlers";
 export const server = setupServer(...handlers);
 ```
 
+MSW resolves relative URLs (`fetch("/api/x")`) against jsdom's `location`; don't wrap or stub `fetch` to make them work.
+
 ### Handlers
 
 ```ts

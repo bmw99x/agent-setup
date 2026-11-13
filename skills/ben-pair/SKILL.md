@@ -1,6 +1,6 @@
 ---
 name: ben-pair
-description: Use at two moments while implementing — just before asking the user a clarifying or permission question, and just before declaring a task done/ready/finished — and whenever you are about to pass up a clear improvement because nobody asked for it. Decides just-do-it vs recommend-and-ask vs stop-and-ask, and forces the "am I done, or should I make this better?" refactor beat. Not for brainstorming, spec clarification, or teaching sessions, where asking is the point.
+description: "Use when implementing while the user is away or said not to interrupt (questions go in a QUESTIONS/HANDOFF file), when about to ask the user a clarifying question, or before reporting work done. Decides just-do-it vs recommend-and-ask vs stop-and-ask, and runs a final make-it-better refactor pass. Risky or irreversible steps belong to human-in-the-loop. Not for brainstorming or teaching."
 ---
 
 # Ben Pair
@@ -38,7 +38,9 @@ Place each candidate change — a simplification, a parameterisation, an extract
 
 The outcome is **unambiguously better**, there is **essentially one sensible way** to get there,
 it is reversible, and it trips no `human-in-the-loop` gate. Parameterising duplicate tests,
-extracting a small testable unit, a domain-accurate rename, removing dead code on lines you touched.
+extracting a small testable unit, a domain-accurate rename of an internal name, removing dead
+private code on lines you touched. Renaming or deleting anything in a contract (schema, endpoint,
+DB column, public API) is a `human-in-the-loop` gate, not a just-do.
 
 Asking here is the annoyance. Improving the code is the job, not a favour. Do it; mention it in
 passing if it is worth knowing.
@@ -76,8 +78,10 @@ language — applied to your own diff. On top of that, Ben's priorities:
 ## At each trigger
 
 **Before asking a question:** answer it against the ladder first. Just-do-it → do it instead of
-asking. Recommend-and-ask → phrase it as a closed question with your recommendation. Only a
-genuine stop-and-ask earns a bare question.
+asking. Recommend-and-ask → phrase it as a closed question with your recommendation, and carry on with
+work it doesn't block. Stop-and-ask → halt that step; still ask a closed question carrying your
+recommendation when you have one. Where questions go (MR section, handoff file) is
+`human-in-the-loop`'s soft-checkpoint rule.
 
 **Before saying done:** run the refactor beat. Take the one clearly-better improvement, note any
 you're deliberately leaving and why, confirm the step is small and shippable, then hand to
@@ -87,7 +91,8 @@ code. Then say done plainly, without hedging, because you checked.
 ## Pragmatism over dogma
 
 Beck, Fowler, Metz — not Uncle Bob. Improve what you touch, not untouched lines. Don't extract what
-is already short and clear. If you catch yourself enforcing a rule against your own read of what
+is already short and clear. Three strikes breaks the tie: extract when your change writes or edits
+the third copy; copies you didn't touch get a mention, not a refactor. If you catch yourself enforcing a rule against your own read of what
 is better here, stop — that is the dogma to reject.
 
 Concrete preferences and the principle each serves: `references/worked-examples.md`.

@@ -33,10 +33,8 @@ Dep direction: `routes → service → repository → models`. Domain knows noth
 
 | Thing               | Convention                                          |
 | ------------------- | --------------------------------------------------- |
-| Schema (read)       | `<Resource>Datum`                                   |
-| Schema (write)      | `Upsert<Resource>Datum`                             |
-| Schema (bulk write) | `@dataclass`                                        |
-| Error audit table   | `<resource>_errors` — FK + timestamp as `failed_at` |
+| Schema (read/write/bulk) | `<Resource>Datum` / `<Resource>UpsertDatum` / `<Resource>UpsertMany` — pydantic skill owns schema naming |
+| Error audit table   | `<resource>_errors` — FK + `created_at` as the failure time (advanced-alchemy owns the pattern) |
 
 Adapt naming conventions to match existing patterns in the project before defaulting to these.
 

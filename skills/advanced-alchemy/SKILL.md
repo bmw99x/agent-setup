@@ -23,7 +23,7 @@ class MyModel(Base, BasicAttributes, UUIDPKMixIn, CreatedAtMixIn, SoftDeleteMixI
     value: Mapped[str | None] = mapped_column(nullable=True)
 ```
 
-Typical shared mixins:
+Use the project's shared mixins for these columns — never hand-roll `id`/`created_at`/`updated_at`/`deleted_at`. The `*MixIn` names above are house code (`myapp.orm.mixins`): find the project's equivalents first. If it has none, advanced-alchemy ships `UUIDPrimaryKey` and `AuditColumns` (`created_at`/`updated_at`) in `advanced_alchemy.mixins`; soft delete is always house code.
 
 | Mixin | Adds |
 |-------|------|
@@ -31,7 +31,7 @@ Typical shared mixins:
 | `CreatedAtMixIn` | `created_at: datetime` |
 | `UpdatedAtMixIn` | `updated_at: datetime` |
 | `SoftDeleteMixIn` | `deleted_at: datetime | None` |
-| `BasicAttributes` | `__tablename__`, metadata helpers |
+| `BasicAttributes` | `to_dict()` only — declare `__tablename__` yourself (`CommonTableAttributes` is the one that derives it) |
 
 Table names: `snake_case` plural.
 
@@ -42,52 +42,13 @@ Wire new routers in the central routing module.
 
 ## Repositories
 
-Two patterns — advanced-alchemy preferred for new code:
+New code: `repository.SQLAlchemyAsyncRepository[Model]` (from `advanced_alchemy.extensions.fastapi`) with `model_type = Model`; put `SoftDeleteRepositoryMixIn` first in the bases for soft-deletable models. The legacy hand-rolled `SQLAlchemyAsyncSessionRepository` is for existing code only.
 
-### advanced-alchemy (new code)
-```python
-from advanced_alchemy.extensions.fastapi import repository
-from myapp.orm.mixins import SoftDeleteRepositoryMixIn
-from myapp.my_context.models import MyModel
-
-# With soft delete:
-class MyModelRepository(SoftDeleteRepositoryMixIn, repository.SQLAlchemyAsyncRepository[MyModel]):
-    model_type = MyModel
-
-# Without soft delete:
-class MyModelRepository(repository.SQLAlchemyAsyncRepository[MyModel]):
-    model_type = MyModel
-```
-
-Built-ins: `get_one_or_none(id=...)`, `list(...)`, `add(instance)`, `delete(instance)`.
-Custom methods: `self.session` + `select()` 2.0 style.
-
-### Legacy hand-rolled session repository (existing code only — don't use for new code)
-```python
-from myapp.repository.database import SQLAlchemyAsyncSessionRepository
-from myapp.orm.dependencies import SESSION
-
-class MyModelRepository(SQLAlchemyAsyncSessionRepository[MyModel, CreateSchema, UpdateSchema]):
-    def __init__(self, session: AsyncSession = SESSION):
-        super().__init__(model=MyModel, session=session)
-```
+Custom methods (`self.session` + `select()`) bypass the soft-delete mixin's filter — add `.where(Model.deleted_at.is_(None))` yourself.
 
 ## Services
 
-```python
-from advanced_alchemy.extensions.fastapi import service
-from myapp.orm.mixins import SoftDeleteServiceMixIn
-from myapp.my_context.models import MyModel
-from myapp.my_context.repository import MyModelRepository
-
-class MyModelService(
-    SoftDeleteServiceMixIn[MyModel, MyModelRepository],
-    service.SQLAlchemyAsyncRepositoryService[MyModel, MyModelRepository],
-):
-    repository_type = MyModelRepository
-```
-
-Built-ins: `list_and_count(*filters)`, `get(id)`, `create(data)`, `update(data, item_id=id)`, `delete(id)`, `to_schema(data, schema_type=SchemaCls)`.
+`service.SQLAlchemyAsyncRepositoryService[Model, ModelRepository]` with `repository_type = ModelRepository`; soft-deletable models put `SoftDeleteServiceMixIn[Model, ModelRepository]` first in the bases. Convert with `service.to_schema(data, schema_type=SchemaCls)`.
 
 ## Sessions
 
@@ -99,21 +60,7 @@ Built-ins: `list_and_count(*filters)`, `get(id)`, `create(data)`, `update(data, 
 
 ## Queries
 
-```python
-from sqlalchemy import select
-from sqlalchemy.orm import selectinload
-
-stmt = (
-    select(MyModel)
-    .where(MyModel.deleted_at.is_(None))
-    .options(selectinload(MyModel.related))
-    .order_by(MyModel.created_at.desc())
-)
-results = await self.session.scalars(stmt)
-```
-
-- `selectinload` default — avoids N+1
-- `joinedload` only for single-row lookups
+- `selectinload` default — avoids N+1; `joinedload` only for single-row lookups
 - Pagination via `alchemy.provide_filters({"pagination_type": "limit_offset"})` — don't hand-roll
 
 ## Relationships
@@ -122,7 +69,7 @@ results = await self.session.scalars(stmt)
 parent: Mapped[Parent] = relationship("Parent", back_populates="children", lazy="raise")
 ```
 
-- `lazy="raise"` on all — forces explicit eager load
+- `lazy="raise"` on all, no exceptions — forces explicit eager load (`selectinload`) at the query
 - `back_populates` not `backref`
 
 ## Soft delete
@@ -141,7 +88,7 @@ from sqlalchemy import func, select
 from sqlalchemy.ext.hybrid import hybrid_property
 
 class ImportJob(Base, ...):
-    errors: Mapped[list["ImportJobError"]] = relationship("ImportJobError", lazy="selectin", ...)
+    errors: Mapped[list["ImportJobError"]] = relationship("ImportJobError", lazy="raise", ...)
 
     @hybrid_property
     def attempts(self) -> int:
@@ -160,7 +107,7 @@ class ImportJob(Base, ...):
         )
 ```
 
-- Instance method requires relationship loaded — use `lazy="selectin"` or explicit `selectinload`
+- Instance method requires the relationship loaded — `selectinload(ImportJob.errors)` in the query
 - Expression method enables `Model.attempts > 0` in `where()` clauses
 
 ## Error audit trail pattern
@@ -178,28 +125,13 @@ class ImportJobError(Base, BasicAttributes, UUIDPKMixIn, CreatedAtMixIn):
 - `created_at` = timestamp of failure — no separate `failed_at` column needed
 - Full audit trail of all errors, not just last
 - `attempts` derived as hybrid count of error rows
+- Append-only child of a soft-deleted parent: no `SoftDeleteMixIn` needed; `ondelete="CASCADE"` only fires if the parent is ever purged
 
 ## JSONB
 
 - `from sqlalchemy.dialects.postgresql import JSONB`
 - `Mapped[dict] = mapped_column(JSONB, nullable=False, default=dict)`
-- GIN index in `__table_args__`: `Index("ix_...", "col", postgresql_using="gin")`
-
-## Writes
-
-```python
-# Create
-entity = await service.create({"name": "foo"}, auto_commit=True)
-
-# Update
-entity = await service.update({"name": "bar"}, item_id=entity_id, auto_commit=True)
-
-# Upsert
-entity = await service.upsert({"id": id, "name": "foo"}, auto_commit=True)
-
-# Bulk
-entities = await service.upsert_many([...], auto_commit=True)
-```
+- GIN index in `__table_args__`: `Index("gix_<table>_<col>", "col", postgresql_using="gin")` — db-indexes owns index naming
 
 ## Raw SQL
 

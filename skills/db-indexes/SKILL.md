@@ -14,14 +14,14 @@ Reference for index decisions, naming, and safety rules. Prevents duplicate/conf
 ```
 ix_<table>_<col(s)>                    # standard B-tree
 ix_<table>_<col>_partial               # partial index
-uq_<table>_<col(s)>                    # unique constraint as index
+uq_<table>_<col(s)>                    # any unique index/constraint, partial ones included
 gix_<table>_<col>                      # GIN index (JSONB, full-text)
 gsx_<table>_<col>                      # GiST index (geospatial)
 ```
 
 Examples:
 ```
-ix_products_sku_region  -- partial unique (deleted_at IS NULL)
+uq_products_sku_region  -- partial unique (deleted_at IS NULL)
 ix_orders_customer_id   -- FK lookup
 ```
 
@@ -37,7 +37,7 @@ Always add in `__table_args__`:
 
 ```python
 __table_args__ = (
-    Index("ix_jobs_status", "status", postgresql_where="deleted_at IS NULL"),
+    Index("ix_jobs_status_partial", "status", postgresql_where="deleted_at IS NULL"),
     Index("ix_jobs_created_at", "created_at"),
 )
 ```
@@ -49,7 +49,7 @@ Add migration: `alembic revision --autogenerate` then check autogen output — p
 All unique indexes on soft-deletable tables must include `postgresql_where="deleted_at IS NULL"`:
 
 ```python
-Index("ix_products_sku_region", "sku", "region",
+Index("uq_products_sku_region", "sku", "region",
       postgresql_where="deleted_at IS NULL", unique=True)
 ```
 
@@ -77,32 +77,15 @@ Index("gsx_locations_geom", "geom", postgresql_using="gist")
 
 ## CREATE INDEX CONCURRENTLY
 
-For existing production tables, use concurrent creation to avoid lock:
+On large live tables, create and drop concurrently. It cannot run inside a transaction, and Alembic opens one per migration — a bare `op.execute` is not enough:
 
 ```python
-# In migration — must be outside transaction
-op.execute("CREATE INDEX CONCURRENTLY ix_foo_bar ON foo (bar)")
+with op.get_context().autocommit_block():
+    op.create_index("ix_foo_bar", "foo", ["bar"], postgresql_concurrently=True)
 ```
 
-Alembic wraps in transaction by default — add `with op.get_context().autocommit_block():` or use raw `op.execute`.
+A failed concurrent build leaves an `INVALID` index: drop it, then retry.
 
 ## Removing an index
 
-Before removing:
-1. Check `pg_stat_user_indexes.idx_scan` — zero scans over 7+ days = candidate
-2. `DROP INDEX CONCURRENTLY` to avoid lock
-
-```python
-op.execute("DROP INDEX CONCURRENTLY IF EXISTS ix_foo_bar")
-```
-
-## Current index inventory
-
-> Update this table when indexes added/removed via migration.
-
-| Table | Index | Columns | Type | Notes |
-|-------|-------|---------|------|-------|
-| products | `ix_products_sku_region` | sku, region | B-tree partial unique | `deleted_at IS NULL` |
-| orders | `ix_orders_customer_id` | customer_id | B-tree | FK lookup |
-
-_Add new rows here when creating indexes._
+Before removing, check `pg_stat_user_indexes.idx_scan` — zero scans over 7+ days = candidate. Drop with `op.drop_index(..., postgresql_concurrently=True, if_exists=True)` inside the same `autocommit_block()`.

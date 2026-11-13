@@ -30,9 +30,10 @@ A CSS class that only sets things props can express (width, height, background, 
 ### Hard rules (these are what reviewers flag)
 
 - **Never `style={{ ... }}`** — not even for "no prop exists". Use a CSS module class instead. `style={{ overflow: "hidden" }}` → `.wrap { overflow: hidden }` + `className={classes.wrap}`.
+- **Runtime values** go through props too: `opacity={isStale ? 0.7 : 1}`, `w={`${pct}%`}`, or a CSS variable via `__vars={{ "--x": `${x}px` }}` read in the CSS module. Per-frame updates (pointer tracking) write `ref.current.style` instead of re-rendering. Generic React advice that shows `style={{}}` (e.g. vercel-react-best-practices re-render rules) does not override this in Mantine code.
 - **No curly braces around string-literal props.** `w="100%"` not `w={"100%"}`. `h="100%"` not `h={"100%"}`.
-- **No `createStyles`.** It was removed in v8 — use props → `classNames` → CSS modules.
-- **No fractional values.** Avoid decimals like `lh={1.35}`, `0.375rem`, `0.09rem`: use a theme token (`lh="sm"`, `gap="xs"`), a whole-number `px`/`rem`, or `1px` for hairlines. If a fractional value seems needed, the design is off the scale; pick the nearest token.
+- **No `createStyles`.** It was removed in v7 — use props → `classNames` → CSS modules.
+- **No fractional values.** Avoid decimals like `lh={1.35}`, `0.375rem`, `0.09rem`: use a theme token (`lh="sm"`, `gap="xs"`), a whole-number `px`/`rem`, or `1px` for hairlines. `opacity` is exempt (0–1 by definition). If a fractional value seems needed, the design is off the scale; pick the nearest token.
 - **Don't hand-roll layout** (`display:flex; flex-direction:column`) when `<Stack>`/`<Group>`/`orientation` props exist.
 - **`gap`/`spacing` use theme tokens** (`gap="xs"`), not raw rem, unless a specific value is required.
 

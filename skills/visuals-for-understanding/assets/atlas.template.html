@@ -40,6 +40,11 @@ nav a:focus-visible, button:focus-visible, input:focus-visible { outline: 2px so
 .figure svg { display: block; width: 100%; min-width: 640px; height: auto; font-family: var(--sans) }
 .notes { max-width: 72ch; color: var(--muted); margin: 12px 0 0; padding-left: 18px }
 .notes li + li { margin-top: 4px }
+.contents { display: flex; flex-wrap: wrap; gap: 6px; margin: 0 0 8px }
+.contents button { font: inherit; font-size: 12.5px; padding: 4px 10px; border: 1px solid var(--line); border-radius: 999px; background: var(--panel); color: var(--ink); cursor: pointer }
+.contents button:hover { border-color: var(--accent); color: var(--accent) }
+.fig-title { font-size: 15px; font-weight: 600; margin: 28px 0 4px; scroll-margin-top: 110px }
+.fig-lead { max-width: 72ch; margin: 0 0 10px; color: var(--muted) }
 /* dependency explorer */
 .dep-bar { display: flex; flex-wrap: wrap; gap: 10px 20px; align-items: center; margin-bottom: 14px }
 .search { position: relative; flex: 1 1 280px; max-width: 520px; min-width: 0 }
@@ -153,6 +158,10 @@ function show() {
   }
 }
 window.addEventListener("hashchange", show);
+document.addEventListener("click", e => {
+  const b = e.target.closest("[data-goto]");
+  if (b) document.getElementById(b.dataset.goto).scrollIntoView({ behavior: matchMedia("(prefers-reduced-motion: reduce)").matches ? "auto" : "smooth", block: "start" });
+});
 show();
 </script>
 <!--DEP-->

@@ -10,7 +10,9 @@ Manifest (paths relative to the manifest):
   "subtitle": "repo <code>branch</code> @ abc1234",  # HTML allowed
   "panels": [                                    # one tab each, in order
     {"id": "context", "label": "C4 context", "lead": "One-sentence point.",
-     "svg": "c4.svg", "notes": ["Short note", "..."]}
+     "svg": "c4.svg", "notes": ["Short note", "..."]},
+    {"id": "flows", "label": "Key flows", "lead": "...",      # several titled figures in one tab
+     "figures": [{"title": "The join", "lead": "...", "svg": "join.svg", "notes": ["..."]}]}
   ],
   "graph": "graph.json",                         # optional: from callgraph.py -> Dependencies tab
   "dependency_lead": "What the explorer covers.",
@@ -40,17 +42,42 @@ def keep_block(page: str, marker: str) -> str:
     return page.replace(f"<!--{marker}-->\n", "").replace(f"<!--/{marker}-->\n", "")
 
 
-def panel_html(panel: dict, base: Path, first: bool) -> str:
-    svg = (base / panel["svg"]).read_text().strip()
+def read_svg(base: Path, name: str) -> str:
+    svg = (base / name).read_text().strip()
     if not svg.startswith("<svg"):
-        raise SystemExit(f"{panel['svg']}: expected a bare <svg> element")
-    notes = "".join(f"<li>{note}</li>" for note in panel.get("notes", []))
+        raise SystemExit(f"{name}: expected a bare <svg> element")
+    return svg
+
+
+def notes_html(notes: list[str]) -> str:
+    return f'  <ul class="notes">{"".join(f"<li>{note}</li>" for note in notes)}</ul>\n' if notes else ""
+
+
+def figures_html(panel: dict, base: Path) -> str:
+    """Several titled figures in one tab, with a contents row that scrolls to each."""
+    figures = panel["figures"]
+    contents = "".join(
+        f'<button type="button" data-goto="f-{panel["id"]}-{i}">{html.escape(f["title"])}</button>'
+        for i, f in enumerate(figures)
+    )
+    body = "".join(
+        f'  <h3 class="fig-title" id="f-{panel["id"]}-{i}">{html.escape(f["title"])}</h3>\n'
+        + (f'  <p class="fig-lead">{f["lead"]}</p>\n' if f.get("lead") else "")
+        + f'  <div class="figure">{read_svg(base, f["svg"])}</div>\n'
+        + notes_html(f.get("notes", []))
+        for i, f in enumerate(figures)
+    )
+    return f'  <div class="contents">{contents}</div>\n{body}'
+
+
+def panel_html(panel: dict, base: Path, first: bool) -> str:
+    if "figures" in panel:
+        content = figures_html(panel, base)
+    else:
+        content = f'  <div class="figure">{read_svg(base, panel["svg"])}</div>\n' + notes_html(panel.get("notes", []))
     return (
         f'<section class="panel" id="p-{panel["id"]}"{"" if first else " hidden"}>\n'
-        f'  <p class="lead">{panel["lead"]}</p>\n'
-        f'  <div class="figure">{svg}</div>\n'
-        + (f'  <ul class="notes">{notes}</ul>\n' if notes else "")
-        + "</section>\n"
+        f'  <p class="lead">{panel["lead"]}</p>\n' + content + "</section>\n"
     )
 
 

@@ -27,8 +27,8 @@ Number or URL from the arguments, else the current branch's MR. Merged/closed or
 and stop. Record number, source branch, head SHA, base.
 
 Write unresolved threads to `$SCRATCH/threads.txt`, one per line:
-`[thread-id] path:line :: text` (`references/forge.md`). Line numbers refer to the commented head,
-so agents locate code by content. Zero threads: say so and stop (skip step 11's prompt only then).
+`[thread-id] path:line :: text` (`references/forge.md`). Line numbers may point at an older commit
+(outdated threads), so agents locate code by content. Zero threads: say so and stop (skip step 11's prompt only then).
 
 ## 2. Group by file ownership
 
@@ -42,7 +42,7 @@ go in one group. Then order the groups into waves:
 3. **Sweep** — repo-wide mechanical changes (rename, comment removal, import moves). Last, so it
    does not conflict with the refactors.
 
-Show the user the groups, waves and models in a short table and continue unless they object.
+Show the user the groups, waves and models in a short table and continue unless they object. If a group restructures modules or introduces a pattern (folders, a new abstraction), show the sketch and wait for approval before dispatching it.
 
 ## 3. Pick the model per group
 
@@ -105,8 +105,8 @@ Remove the worktrees and `mrfb/*` branches once merged and pushed.
 
 ## 11. Prompt for skill updates — mandatory
 
-Last step of every run. Stop-hook reminders fire if this is skipped, but do it here. Ask the user
-whether to turn this MR's feedback into skill edits, and offer a concrete list drawn from the
+Last step of every run. Stop-hook reminders fire if this is skipped, but do it here. Offer (in chat,
+and in the handoff file when the user is away) to turn this MR's feedback into skill edits, and offer a concrete list drawn from the
 threads, not a generic question. Reviewer feedback that recurs is a missing rule.
 
 Classify each proposal by scope and kind:
@@ -116,3 +116,5 @@ Classify each proposal by scope and kind:
 
 Format: `<scope> / <kind> — <skill to create or edit> — <one-line rule> — (threads: <ids>)`.
 Prefer editing an existing skill over creating one. Offer only; apply nothing until the user picks.
+If the user is away or named a handoff/notes file, write the list there (same format, with thread
+ids) as well as in your final message; do not skip the step because no one can answer now.

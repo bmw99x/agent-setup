@@ -46,7 +46,7 @@ Creates comprehensive handoff documents that enable fresh AI agents to seamlessl
 
 Generates a comprehensive handoff document capturing current state:
 
-1. **Generate Scaffold** - Pre-fill metadata (timestamp, git status, modified files)
+1. **Create File** - Write `.claude/handoffs/$(date +%Y-%m-%d-%H%M%S)-<slug>.md` by hand (always the full timestamp, never date-only) and fill metadata (git branch, status, modified files)
 2. **Complete Document** - Fill in critical sections (state, context, decisions, next steps)
 3. **Validate** - Check for completeness, quality, and security
 4. **Confirm** - Present location and summary to user
@@ -60,6 +60,7 @@ Loads and validates existing handoff documents:
 3. **Load Document** - Read handoff (and chain if linked)
 4. **Verify Context** - Validate assumptions and environment
 5. **Begin Work** - Start from "Immediate Next Steps"
+6. **Record Progress** - Before ending, update that handoff (mark steps done, add new state) or write a new one that links back to it (Handoff Chain). Never end with the old handoff unchanged.
 
 ## Handoff Document Structure
 
@@ -108,7 +109,6 @@ When validating a handoff, check:
 - All required sections populated
 - No potential secrets (API keys, passwords, tokens)
 - Referenced files exist
-- Quality score ≥ 70
 
 ## Staleness Detection
 
@@ -124,7 +124,6 @@ When resuming, assess:
 
 Do not finalize a handoff if:
 
-- Validation score is below 70
 - Secrets are detected
 - `[TODO: ...]` placeholders remain
 - Required sections are empty

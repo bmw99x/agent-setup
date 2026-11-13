@@ -10,6 +10,8 @@ description: 'Load when the same cluster of parameters travels together through 
 - A function's arg list has grown long enough that call sites are hard to read, and several of the args are clearly related.
 - The same cluster of params repeats across multiple function signatures — the strongest signal, regardless of how long any single signature is.
 - A block of `if <cond>: result.append(...)` (or similar) is duplicated across methods and should become one pure, unit-testable function.
+- The same few values are handed down a chain of methods of one class (`body`, `arrow`, `write` passed from `put_x` → `_send` → `_send_once`): make them one `TypedDict` or frozen pydantic model built once at the top.
+- An external answer (HTTP JSON, a row) is picked apart field by field into locals or positional constructor args: define its model and `Model.model_validate(answer)` instead.
 
 ## Pattern
 
@@ -47,14 +49,14 @@ async def list_orders(self, *, page: int, page_size: int, order_by: OrderBy, fil
 
 ## Escape hatch during migration
 
-If not every call site can move at once:
+Only for an entry point that callers you cannot edit still use (vendored/synced code). Entry points whose callers are all in your tree take the object only; no shim:
 
 ```python
 def schedule_job(spec: JobSpec | None = None, **kwargs):
     spec = spec or JobSpec(**kwargs)
 ```
 
-Remove once all callers are migrated — transition aid, not permanent API.
+Remove once all callers are migrated — transition aid, not permanent API. Never add it to a function you can migrate every caller of.
 
 ## Signal you're done
 

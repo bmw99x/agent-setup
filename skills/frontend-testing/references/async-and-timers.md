@@ -80,11 +80,11 @@ it("debounces input before updating URL params", async () => {
 afterEach(() => { vi.useRealTimers(); });
 ```
 
-Never use `vi.useFakeTimers()` in `beforeEach` when the test also needs `waitFor` or `findBy*` — this
-will hang. Always restore with `vi.useRealTimers()` in `afterEach`.
+Never use plain `vi.useFakeTimers()` in `beforeEach` when the test also needs `waitFor` or `findBy*` — this
+will hang. If fake timers must be on suite-wide, `vi.useFakeTimers({ shouldAdvanceTime: true })` keeps
+`waitFor`, `findBy*` and MSW responses working (verified on vitest 2.1 / msw 2.6 / RTL 16). Always restore
+with `vi.useRealTimers()` in `afterEach`.
 
 ### Options that do NOT work
 
-- `vi.useFakeTimers({ shouldAdvanceTime: true })` — unblocks `waitFor` but MSW responses
-  arrive asynchronously via real timers; components render empty
 - `vi.runAllTimersAsync()` — hangs on polling intervals (infinite timers)

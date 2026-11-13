@@ -17,9 +17,13 @@ set -uo pipefail
 
 ECOSYSTEM="${1:-}"
 
-# Copyleft license identifiers to flag (case-insensitive substring match)
-HIGH_SEVERITY="GPL-2.0|GPL-3.0|GPL2|GPL3|AGPL|SSPL"
-MED_SEVERITY="LGPL|MPL|EPL|CDDL"
+# Copyleft license identifiers to flag. SPDX ids match case-sensitively and only
+# at a token start, so LGPL is never reported as GPL; long names (classifier
+# form, e.g. "GNU General Public License v3 (GPLv3)") match case-insensitively.
+HIGH_IDS="(^|[^A-Za-z])(AGPL|SSPL|GPL)"
+HIGH_NAMES="GNU (Affero )?General Public License|Server Side Public License"
+MED_IDS="(^|[^A-Za-z])(LGPL|MPL|EPL|CDDL)"
+MED_NAMES="Lesser General Public License|Library General Public License|Mozilla Public License|Eclipse Public License|Common Development and Distribution"
 
 detect_ecosystem() {
   if [[ -f "package.json" ]]; then echo "npm"; return; fi
@@ -40,9 +44,9 @@ echo "== License sweep: ecosystem=$ECOSYSTEM =="
 flag_output() {
   local raw="$1"
   local high_hits med_hits none_hits
-  high_hits=$(echo "$raw" | grep -Ei "$HIGH_SEVERITY" || true)
-  med_hits=$(echo "$raw" | grep -Ei "$MED_SEVERITY" || true)
-  none_hits=$(echo "$raw" | grep -Ei "UNLICENSED|unknown|no license|none found" || true)
+  high_hits=$( { echo "$raw" | grep -E "$HIGH_IDS"; echo "$raw" | grep -Ei "$HIGH_NAMES"; } | sort -u || true)
+  med_hits=$( { echo "$raw" | grep -E "$MED_IDS"; echo "$raw" | grep -Ei "$MED_NAMES"; } | sort -u || true)
+  none_hits=$(echo "$raw" | grep -Ei "UNLICENSED|UNKNOWN|no license|none found" || true)
 
   if [[ -n "$high_hits" ]]; then
     echo ""
@@ -70,21 +74,38 @@ case "$ECOSYSTEM" in
       echo "npx not found — install Node.js to use license-checker."
       exit 1
     fi
-    OUT=$(npx --yes license-checker --summary 2>/dev/null)
+    # --csv lists every package with its license (--summary prints counts only).
+    # Exclude the project itself: a private package.json often says "UNLICENSED".
+    ROOT=$(node -p 'const p=require("./package.json"); (p.name||"")+"@"+(p.version||"")' 2>/dev/null || true)
+    OUT=$(npx --yes license-checker --csv --excludePrivatePackages ${ROOT:+--excludePackages "$ROOT"} 2>/dev/null)
     echo "$OUT"
     flag_output "$OUT"
     ;;
   python)
-    if ! command -v pip-licenses &>/dev/null; then
-      echo "pip-licenses not installed. Attempting install..."
-      pip install pip-licenses --break-system-packages --quiet 2>/dev/null || \
-        pip install pip-licenses --quiet 2>/dev/null || {
-          echo "Could not install pip-licenses automatically. Install manually with:"
-          echo "  pip install pip-licenses --break-system-packages"
-          exit 1
-        }
-    fi
-    OUT=$(pip-licenses --format=plain 2>/dev/null)
+    # Scan the project's environment, not whatever python is first on PATH.
+    if [[ -n "${VIRTUAL_ENV:-}" && -x "$VIRTUAL_ENV/bin/python" ]]; then PY="$VIRTUAL_ENV/bin/python"
+    elif [[ -x ".venv/bin/python" ]]; then PY=".venv/bin/python"
+    elif command -v poetry &>/dev/null && poetry env info -p &>/dev/null; then PY="$(poetry env info -p)/bin/python"
+    else PY="$(command -v python3 || command -v python)"; fi
+    echo "(interpreter: $PY)"
+    # Stdlib only, no install or network. Reads PEP 639 License-Expression first
+    # (older tools report it as UNKNOWN), then License, then trove classifiers.
+    OUT=$("$PY" - <<'PY'
+from importlib.metadata import distributions
+
+for dist in sorted(distributions(), key=lambda d: (d.metadata["Name"] or "").lower()):
+    meta = dist.metadata
+    found = meta.get("License-Expression")
+    if not found:
+        declared = (meta.get("License") or "").strip()
+        if declared and declared.upper() != "UNKNOWN" and "\n" not in declared and len(declared) < 80:
+            found = declared
+    if not found:
+        classifiers = [c.split(" :: ")[-1] for c in meta.get_all("Classifier") or [] if c.startswith("License ::")]
+        found = "; ".join(classifiers) or "UNKNOWN"
+    print(f"{meta['Name']}=={dist.version}\t{found}")
+PY
+)
     echo "$OUT"
     flag_output "$OUT"
     ;;

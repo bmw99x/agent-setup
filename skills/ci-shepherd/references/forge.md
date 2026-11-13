@@ -21,8 +21,10 @@ and a diff against it can balloon to the whole history.
 |---|---|---|
 | Behind, and the forge requires it current | `BEHIND` | `need_rebase` |
 | Conflicts with base | `DIRTY` / `CONFLICTING` | `conflict` (`has_conflicts: true`) |
-| Blocked by approvals or discussions — not a stale base | `BLOCKED` | `not_approved`, `discussions_not_resolved` |
-| Fine | `CLEAN`, `UNSTABLE`, `HAS_HOOKS` | `mergeable`, `ci_must_pass`, `ci_still_running` |
+| Blocked by approvals, discussions or required checks — not a stale base | `BLOCKED` (required reviews *or* required checks failing/pending — read the checks before calling it approvals) | `not_approved`, `discussions_not_resolved` |
+| Blocked by CI: required pipeline failed or still running | (part of `BLOCKED`) | `ci_must_pass`, `ci_still_running` |
+| Mergeable, but non-required checks fail — still a CI finding | `UNSTABLE` | — |
+| Fine | `CLEAN`, `HAS_HOOKS` | `mergeable` |
 | Not computed yet — re-read once | `UNKNOWN` | `unchecked`, `checking` |
 
 GitHub: `gh pr view <n> --json mergeable,mergeStateStatus`. GitLab:

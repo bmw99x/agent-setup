@@ -20,9 +20,9 @@ Comment only these — everything else goes:
 | Coupling to another place that must change in step | `# keep in sync with ExportStatus in exports/schemas.py` |
 | Rejected obvious approach | `# not <obvious approach>: <why it fails>` |
 
-Removed in review: restating the code, changelog comments (`# updated to use X` — git records that), Args/Returns blocks that repeat annotations, narrating the function body, ceremony ("Note that…").
+Removed in review: section-divider comments (`# Runs`, `# Series`, `# ---- helpers ----`; structure comes from classes, modules and names), restating the code, changelog comments (`# updated to use X` — git records that), Args/Returns blocks that repeat annotations, narrating the function body, ceremony ("Note that…").
 
-Docstrings: **one line** by default. A non-obvious *why* earns ≤3 more lines. Longer → MR description or design doc. Every exported function in a `utils` module gets a one-line docstring.
+Docstrings: **one line** by default. A non-obvious *why* earns ≤3 more lines; this holds for module docstrings too (a 9-line module essay is cut in review). Longer → MR description or design doc. Every exported function in a `utils` module gets a one-line docstring.
 
 `TODO:` prefix, uppercase with colon: `# TODO: clean up post-POC`. POC/spike code is always flagged this way.
 

@@ -21,14 +21,15 @@ GitHub (review threads need GraphQL for resolved state):
 
 ```bash
 gh api graphql -f query='query($o:String!,$r:String!,$n:Int!){repository(owner:$o,name:$r){pullRequest(number:$n){
-  reviewThreads(first:100){nodes{id isResolved path line comments(first:1){nodes{databaseId body}}}}}}}' \
+  reviewThreads(first:100){nodes{id isResolved path line originalLine comments(first:1){nodes{databaseId body}}}}}}}' \
   -f o=<owner> -f r=<repo> -F n=<number> | jq -r '
   .data.repository.pullRequest.reviewThreads.nodes[] | select(.isResolved|not)
-  | "[\(.id)] \(.path):\(.line // "-") :: \(.comments.nodes[0].body | gsub("\n"; " "))"' > "$SCRATCH/threads.txt"
+  | "[\(.id)] \(.path):\(.line // .originalLine // "-") :: \(.comments.nodes[0].body | gsub("\n"; " "))"' > "$SCRATCH/threads.txt"
 ```
 
-Line numbers refer to the commented head SHA. Record the head SHA beside the file and tell agents
-to locate code by content, not line.
+GitLab `new_line` is on the commit the note was made against. GitHub `line` is on the current head
+and null once the thread is outdated; `originalLine` is on the commit reviewed. Record the head SHA
+beside the file and tell agents to locate code by content, not line.
 
 ## Reply to a thread
 

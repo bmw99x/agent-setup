@@ -23,12 +23,12 @@ Skip for: single-file fixes, trivial edits, areas already mapped in `docs/`.
 
 ## Steps
 
-1. **Anchor.** Pick entry point: route, CLI cmd, job, public function. Note file:line.
+1. **Anchor.** Pick entry point: route, CLI cmd, job, public function. Note file:line from the file you just read, never from memory.
 1. **Outward sweep.** Follow imports + calls outward 1-2 hops. Track each hop: caller → callee + reason.
 1. **Inward sweep.** `grep` for references to anchor. Who invokes it. Why.
 1. **Data flow.** Identify DTOs / models / DB tables touched. Note schema crossings (DTO ↔ domain ↔ ORM).
 1. **Side effects.** External calls, DB writes, queue publishes, log emits.
-1. **Boundaries.** Tag each node by layer (route / service / repo / adapter / domain). Spot violations.
+1. **Boundaries.** Tag every node by layer (route / service / repo / adapter / domain) in the diagram itself: `subgraph`, `box`, or label suffix like `OrderRepository (repo)`. Layer named only in prose doesn't count. Draw + flag every edge that skips a layer (e.g. route → repo).
 1. **Render.** Mermaid `flowchart` or `sequenceDiagram`. Save under `docs/diagrams/explore/<topic>.md` or paste inline.
 1. **Narrative.** 5-10 bullets: entry, key collaborators, data shape transitions, surprises, open questions.
 
@@ -46,9 +46,21 @@ Skip for: single-file fixes, trivial edits, areas already mapped in `docs/`.
 
 ```mermaid
 flowchart LR
-  Route[POST /things] --> Svc[ThingService.create]
-  Svc --> Repo[ThingRepository.add]
-  Svc --> Pub[EventBus.publish ThingCreated]
+  subgraph route
+    Route[POST /things]
+  end
+  subgraph service
+    Svc[ThingService.create]
+  end
+  subgraph repo
+    Repo[ThingRepository.add]
+  end
+  subgraph adapter
+    Pub[EventBus.publish ThingCreated]
+  end
+  Route --> Svc
+  Svc --> Repo
+  Svc --> Pub
   Repo --> DB[(things table)]
   Pub --> Worker[NotifyWorker]
 ```
@@ -57,6 +69,20 @@ flowchart LR
 
 ```mermaid
 sequenceDiagram
+  participant Client
+  box route
+    participant Route
+  end
+  box service
+    participant Svc
+  end
+  box repo
+    participant Repo
+  end
+  box adapter
+    participant Bus
+  end
+  participant DB
   Client->>Route: POST /things {dto}
   Route->>Svc: create(cmd)
   Svc->>Repo: add(entity)

@@ -1,6 +1,6 @@
 ---
 name: vercel-react-best-practices
-description: React performance optimization guidelines from Vercel Engineering. Use when writing, reviewing, or refactoring React components. Triggers on tasks involving React components, data fetching, bundle optimization, re-render issues, or performance improvements.
+description: "Use when adding or changing React UI where performance can regress - large lists and re-renders, data loaders with several awaits, heavy or rarely-used components (charts, editors, modals), icon or library imports and bundle size. Load before writing the component, not after. React SPA performance rules from Vercel Engineering."
 ---
 
 # React Best Practices
