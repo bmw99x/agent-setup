@@ -1,6 +1,6 @@
 ---
 name: visuals-for-understanding
-description: Use when someone asks for diagrams to understand a codebase, pipeline, feature or MR/PR — a sequence diagram, C4 or architecture view, data flow diagram, dependency or call graph, the ripple effect or blast radius of changing a function, an archify walkthrough — or invokes /visuals-for-understanding.
+description: Use when someone asks for diagrams to understand a codebase, pipeline, feature or MR/PR — a domain map, sequence diagram, C4 or architecture view, data flow diagram, dependency or call graph, the ripple effect or blast radius of changing a function, an archify walkthrough — or invokes /visuals-for-understanding.
 ---
 
 # Visuals for understanding
@@ -18,6 +18,7 @@ One page, tabs in this order:
 
 | Tab | What it answers | Built with |
 |---|---|---|
+| Domain map | The domain's concepts in its own words, how they relate, and a glossary | `scripts/domain_map.py` |
 | C4 context | What runs where, what it talks to, which stores it reads/writes | hand-drawn SVG (`references/drawing.md`) |
 | Sequence | Call order per command or entry point, and where the commit point is | hand-drawn SVG |
 | Data flow | Which source feeds which processing step, which step writes which table | hand-drawn SVG |
@@ -38,9 +39,13 @@ Paths under `scripts/` and `references/` are relative to this skill's directory,
    describe appear only as external boxes. Where doc and code disagree, list it in the reply.
 3. **Map before drawing.** Find the entry points (CLI commands, jobs, routes), read the orchestration modules whole
    (they carry the sequence), and note every store and external service touched. Use the domain's own names.
-4. **Draw the three SVG panels** per `references/drawing.md`. Every box, label and arrow traces to code you read;
+4. **Draw the domain map** (`references/drawing.md`, Domain map): the concepts the code models, named as the business
+   names them (not table, class or transport names), grouped into two or three bounded contexts, with one core concept
+   the domain turns on. Write the spec, run `python3 -I scripts/domain_map.py spec.json domain.svg`, and give the panel a
+   `glossary` of one plain sentence per term. Every concept and relationship traces to code or docs you read.
+5. **Draw the three SVG panels** per `references/drawing.md`. Every box, label and arrow traces to code you read;
    each title states the finding ("Joins are stored first; the revision is put last"), not the topic.
-5. **Build the dependency graph:**
+6. **Build the dependency graph:**
    ```bash
    python3 -I scripts/callgraph.py --root <scratch>/src --package <pkg dir> \
      --entry <cli file>::<substring> [--entry ...] --out graph.json
@@ -50,13 +55,13 @@ Paths under `scripts/` and `references/` are relative to this skill's directory,
    *source* contains it. Read the "unreached" list it prints: each item is dead code or a call the resolver missed. A
    miss on the main path means the ripple numbers are wrong; fix the resolver or add the missing entry file, then rerun
    until only genuinely unused symbols remain.
-6. **Archify walkthrough**: an `architecture` diagram whose `meta.views` are the chapters, in flow order
+7. **Archify walkthrough**: an `architecture` diagram whose `meta.views` are the chapters, in flow order
    (`references/archify-walkthrough.md`).
-7. **Build and publish** one artifact: write the manifest (`source_url` = the forge's blob URL at the pinned SHA, e.g.
+8. **Build and publish** one artifact: write the manifest (`source_url` = the forge's blob URL at the pinned SHA, e.g.
    `https://gitlab.com/<group>/<repo>/-/blob/<sha>/` or `https://github.com/<org>/<repo>/blob/<sha>/`), run
    `python3 -I scripts/build_atlas.py manifest.json atlas.html`, syntax-check the page's scripts (`node --check` on the
    extracted `<script>` bodies), then publish following the host's artifact rules.
-8. **Reply** with the link, the branch and SHA, the three or four widest-ripple symbols (each with its transitive
+9. **Reply** with the link, the branch and SHA, the three or four widest-ripple symbols (each with its transitive
    caller count and the entry points it reaches), the graph's blind spots, and any doc-versus-code differences.
 
 ## Quick reference
@@ -64,6 +69,7 @@ Paths under `scripts/` and `references/` are relative to this skill's directory,
 | Need | Where |
 |---|---|
 | Box sizes, colours, layouts per diagram type | `references/drawing.md` |
+| Domain map spec format | `scripts/domain_map.py` docstring |
 | Archify spec, repair loop, gotchas | `references/archify-walkthrough.md` |
 | Graph edge kinds | `call`, `ref` (partial, callbacks, wiring), `impl` (Protocol → implementation); dashed = ref or inferred |
 | Ripple | transitive callers; "commands reached" = entry points among them |
@@ -79,5 +85,6 @@ Paths under `scripts/` and `references/` are relative to this skill's directory,
 | Resolving calls through imports only | `callgraph.py` follows `self.field.method`, typed chains, Protocol implementations |
 | Trusting ripple numbers without the unreached check | Read the unreached list; fix misses on the main path |
 | Diagramming the MR you were linked when a stacked MR is "the" version | Pin the head the reader means; name it in the subtitle |
-| C4 at every level, runtime profiling, extra views | The five tabs above; add only what the ask names |
+| Domain map boxes named after tables, classes or endpoints | The words the business uses; storage names go in the glossary at most |
+| C4 at every level, runtime profiling, extra views | The six tabs above; add only what the ask names |
 | Saying the walkthrough was browser-checked without Chrome | Report `visual-check` as skipped |

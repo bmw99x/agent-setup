@@ -20,6 +20,15 @@ One arrowhead marker per colour in `<defs>`:
 
 ## Layout per panel
 
+**Domain map.** Drawn by `scripts/domain_map.py` from a spec, 900 wide: a grid of three columns and up to five rows,
+boxes 240 x 80. A box is the concept's name in capitals and one or two lines of its key terms (`Card number · branch`).
+Colour by bounded context with `accent`, `caller` and `callee` (soft fill, solid stroke), a legend under the title;
+the one core concept is solid with panel-coloured text. Relationships are dashed arrows coloured by the context they
+start in, labelled with a verb phrase read from source to target (`borrows`, `is a copy of`, `reserves`). Put the core
+concept where most relationships meet and the contexts in columns, so most arrows join neighbours and none cross a box.
+Library example: Member, Card and Fine (membership) on the left; Title, Copy and Branch (catalogue) on the right; Loan
+(core) and Reservation (lending) between them.
+
 **C4 context (container level).** Top row: what triggers the system and the external services. Middle: the system
 boundary as a dashed rounded rect holding its containers stacked in call order, joined by short vertical arrows. Right:
 the main store or downstream service. Bottom row: the stores read, arrows pointing into the boundary (double-headed

@@ -11,6 +11,8 @@ Manifest (paths relative to the manifest):
   "panels": [                                    # one tab each, in order
     {"id": "context", "label": "C4 context", "lead": "One-sentence point.",
      "svg": "c4.svg", "notes": ["Short note", "..."]},
+    {"id": "domain", "label": "Domain map", "lead": "...", "svg": "domain.svg",   # from domain_map.py
+     "glossary": [["Loan", "A copy lent to a member until its due date."]]},     # optional: term, meaning
     {"id": "flows", "label": "Key flows", "lead": "...",      # several titled figures in one tab
      "figures": [{"title": "The join", "lead": "...", "svg": "join.svg", "notes": ["..."]}]}
   ],
@@ -53,6 +55,18 @@ def notes_html(notes: list[str]) -> str:
     return f'  <ul class="notes">{"".join(f"<li>{note}</li>" for note in notes)}</ul>\n' if notes else ""
 
 
+def glossary_html(terms: list[list[str]]) -> str:
+    """The domain map's glossary: one row per term, its meaning in the domain's own words."""
+    if not terms:
+        return ""
+    rows = "".join(f"<tr><td><b>{html.escape(term)}</b></td><td>{html.escape(meaning)}</td></tr>" for term, meaning in terms)
+    return (
+        '  <h3 class="fig-title">Glossary</h3>\n'
+        '  <div class="card" style="max-width:900px"><table><thead><tr><th style="width:24%">Term</th>'
+        f"<th>Meaning</th></tr></thead><tbody>{rows}</tbody></table></div>\n"
+    )
+
+
 def figures_html(panel: dict, base: Path) -> str:
     """Several titled figures in one tab, with a contents row that scrolls to each."""
     figures = panel["figures"]
@@ -74,7 +88,11 @@ def panel_html(panel: dict, base: Path, first: bool) -> str:
     if "figures" in panel:
         content = figures_html(panel, base)
     else:
-        content = f'  <div class="figure">{read_svg(base, panel["svg"])}</div>\n' + notes_html(panel.get("notes", []))
+        content = (
+            f'  <div class="figure">{read_svg(base, panel["svg"])}</div>\n'
+            + glossary_html(panel.get("glossary", []))
+            + notes_html(panel.get("notes", []))
+        )
     return (
         f'<section class="panel" id="p-{panel["id"]}"{"" if first else " hidden"}>\n'
         f'  <p class="lead">{panel["lead"]}</p>\n' + content + "</section>\n"
